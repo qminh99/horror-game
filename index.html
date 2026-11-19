@@ -75,11 +75,23 @@ function box(m,x,y,z,a,b,c,p=scene){let o=new T.Mesh(new T.BoxGeometry(a,b,c),m)
 function cyl(m,x,y,z,r1,r2,h,n=16,p=scene){let o=new T.Mesh(new T.CylinderGeometry(r1,r2,h,n),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
 function ball(m,x,y,z,r,p=scene){let o=new T.Mesh(new T.SphereGeometry(r,16,12),m);o.position.set(x,y,z);p.add(o);return o}
 
-// Room shell and tiled floor
-box(tile,0,-.13,0,9,.25,7.2);for(let x=-4;x<=4;x++)box(M(0xaead9f),x,.005,0,.012,.008,7);for(let z=-3;z<=3;z++)box(M(0xaead9f),0,.005,z,8.9,.008,.012);box(teal,0,1.6,-3.55,9,3.2,.18);box(teal,0,1.6,3.55,9,3.2,.18);box(teal,-4.55,1.6,0,.18,3.2,7.1);
-// Preserve the original room wall around its existing doorway; the opening now connects to the upstairs hall.
-box(teal,4.55,1.6,-1.10,.18,3.2,4.5);box(teal,4.55,1.6,3.0,.18,3.2,1.1);box(teal,4.55,2.84,1.90,.18,.72,1.0);
-box(M(0xd8d9d4),0,3.25,0,9.15,.2,7.35);for(let z of [-3.43,3.43]){box(white,0,3.08,z,9,.16,.09);box(white,0,.08,z,9,.14,.1)}box(white,-4.43,3.08,0,.09,.16,7);box(white,4.43,3.08,-1.10,.09,.16,4.5);box(white,4.43,3.08,3.0,.09,.16,1.1);
+// Vỏ phòng chính và sàn gạch
+box(tile,0,-.125,0,9,.25,7.2);
+for(let x=-4;x<=4;x++)box(M(0xaead9f),x,.004,0,.012,.008,7);
+for(let z=-3;z<=3;z++)box(M(0xaead9f),0,.004,z,8.9,.008,.012);
+box(teal,0,1.6,-3.55,9,3.2,.18);
+box(teal,0,1.6,3.55,9,3.2,.18);
+box(teal,-4.55,1.6,0,.18,3.2,7.1);
+
+// Tường Đông phòng 1 ôm khít khung cửa ra vào
+box(teal,4.55,1.6,-1.03,.18,3.2,4.86);
+box(teal,4.55,1.6,2.93,.18,3.2,1.06);
+box(teal,4.55,2.84,1.90,.18,.72,1.0);
+box(M(0xd8d9d4),0,3.25,0,9.15,.2,7.35);
+for(let z of [-3.43,3.43]){box(white,0,3.08,z,9,.16,.09);box(white,0,.08,z,9,.14,.1)}
+box(white,-4.43,3.08,0,.09,.16,7);
+box(white,4.43,3.08,-1.03,.09,.16,4.86);
+box(white,4.43,3.08,2.93,.09,.16,1.06);
 
 // Rèm cửa và thanh treo ngang
 let cv=document.createElement('canvas');cv.width=256;cv.height=512;let ctx=cv.getContext('2d');
@@ -126,7 +138,7 @@ function makeCurtainMesh(w, h){
   return o;
 }
 
-// Window, steel bars, sill, horizontal rod and 2 curtains
+// Cửa sổ, song sắt, bệ cửa, thanh treo và 2 tấm rèm
 box(wood,-.1,2.05,-3.43,3.25,1.9,.13);
 box(M(0x85b7c5,.16,.1,{transparent:true,opacity:.45}),-.1,2.05,-3.34,2.95,1.62,.025);
 for(let x=-1.3;x<1.5;x+=.65)box(metal,x,2.05,-3.28,.032,1.6,.032);
@@ -142,15 +154,15 @@ box(wood2,-1.65,2.86,-3.32,.06,.06,.24);
 box(wood2,1.45,2.86,-3.32,.06,.06,.24);
 
 const curtainLeft = makeCurtainMesh(1.15, 2.25);
-curtainLeft.position.set(-1.18, 2.84, -3.17);
+curtainLeft.position.set(-1.18, 2.84, -3.165);
 scene.add(curtainLeft);
 
 const curtainRight = makeCurtainMesh(1.15, 2.25);
-curtainRight.position.set(0.98, 2.84, -3.17);
+curtainRight.position.set(0.98, 2.84, -3.175);
 scene.add(curtainRight);
 let curtainOpen = true, curtainState = 0;
 
-// Tủ quần áo rỗng có đèn và quần áo
+// Tủ quần áo có đèn và quần áo
 box(wood,-2.75,1.35,-3.28,1.56,2.62,.06);
 box(woodIn,-2.75,1.35,-3.24,1.46,2.46,.02);
 box(wood,-3.50,1.35,-2.73,.06,2.62,1.12);
@@ -170,7 +182,7 @@ const closetLight = new T.PointLight(0xffe6ba, 12, 3.2, 1.5);
 closetLight.position.set(-2.75, 2.42, -2.68);
 scene.add(closetLight);
 let closetLightOn=true;
-// Công tắc đặt trên vách phải bên trong tủ, lộ ra khi mở hai cánh cửa.
+
 const closetSwitch=new T.Group();closetSwitch.position.set(-2.025,1.36,-2.43);scene.add(closetSwitch);
 box(M(0x6d5141),0,0,0,.035,.25,.18,closetSwitch);
 box(M(0xd9d5cb),-.022,0,0,.018,.19,.13,closetSwitch);
@@ -197,6 +209,7 @@ addHangingGarment(-2.38, -2.95, 0xc99e52, .26, .76, .12);
 addHangingGarment(-2.18, -2.90, 0x5c4b7d, .25, .80, .12);
 
 box(woodIn,-3.24,.55,-2.92,.42,.03,.52);
+box(woodIn,-3.04,.34,-2.92,.025,.40,.50);
 box(M(0x467868,.85),-3.24,.61,-2.92,.34,.08,.38);
 box(M(0xc87d7d,.85),-3.24,.69,-2.92,.32,.07,.36);
 box(M(0xd6c79c,.85),-3.24,.76,-2.92,.33,.07,.35);
@@ -205,17 +218,19 @@ let wardrobe=new T.Group();wardrobe.position.set(-2.75,0,-2.14);scene.add(wardro
 let wleft=new T.Group();wleft.position.x=-.73;wardrobe.add(wleft);
 box(wood,.365,1.35,0,.73,2.44,.05,wleft);
 box(M(0x7d969c,.12,.85),.365,1.55,.03,.54,1.45,.018,wleft);
-ball(metal,.62,1.32,.07,.038,wleft);
-ball(metal,.62,1.32,-.07,.038,wleft);
+ball(metal,.62,1.32,.055,.035,wleft);
+ball(metal,.62,1.32,-.055,.035,wleft);
 
 let wright=new T.Group();wright.position.x=.73;wardrobe.add(wright);
 box(wood,-.365,1.35,0,.73,2.44,.05,wright);
-ball(metal,-.62,1.32,.07,.038,wright);
-ball(metal,-.62,1.32,-.07,.038,wright);
+ball(metal,-.62,1.32,.055,.035,wright);
+ball(metal,-.62,1.32,-.055,.035,wright);
 
-// Bàn học, Laptop và Ghế ngồi
-box(wood2,1,1.02,-2.62,2,.13,.78);for(let x of [.17,1.83])for(let z of [-2.91,-2.34])box(wood,x,.52,z,.1,1,.1);
-box(dark,.65,1.12,-2.56,.76,.045,.53);box(dark,.65,1.36,-2.79,.76,.48,.045);
+// Bàn học, Laptop và Ghế ngồi phòng 1
+box(wood2,1,1.02,-2.62,2,.13,.78);
+for(let x of [.17,1.83])for(let z of [-2.91,-2.34])box(wood,x,.52,z,.1,1,.1);
+box(dark,.65,1.1075,-2.56,.76,.045,.53);
+box(dark,.65,1.36,-2.79,.76,.48,.045);
 
 const screenCanvas=document.createElement('canvas');
 screenCanvas.width=1200;screenCanvas.height=676;
@@ -311,48 +326,57 @@ function renderComputer(){
   screenTexture.needsUpdate=true;
 }
 box(screenMaterial,.65,1.37,-2.76,.67,.36,.012);renderComputer();
-for(let a=0;a<4;a++)for(let b=0;b<10;b++)box(M(0x737a78),.4+b*.055,1.16,-2.67+a*.065,.035,.008,.025);
+for(let a=0;a<4;a++)for(let b=0;b<10;b++)box(M(0x737a78),.4+b*.055,1.132,-2.67+a*.065,.035,.008,.025);
 
 const chairX = 0.68, chairZ = -1.65;
 box(wood2,chairX,.56,chairZ,.58,.08,.58);
 for(let dx of [-.24,.24])for(let dz of [-.24,.24])box(wood,chairX+dx,.28,chairZ+dz,.07,.54,.07);
 box(wood2,chairX,.98,chairZ+.26,.58,.78,.08);
 
-// Giường ngủ (Mattress & chăn gối)
-box(M(0x263638),-1.63,.19,.62,3.45,.31,2.55);
-box(bed,-1.63,.4,.62,3.36,.22,2.47);
-box(pink,-1.95,.56,.45,1.45,.17,1.25);
-box(yellow,-.58,.56,-.05,1.05,.15,.72);
-box(M(0xacc3cc),-1.65,.67,1.86,1.62,.3,.48);
-box(M(0x31545a),-2.45,.52,1.7,1.5,.17,.45);
-box(dark,-3.2,.25,.75,.82,.4,.62);
-box(M(0x9d5260),-3.2,.47,.55,.74,.2,.45);
-box(M(0x527d8e),4,.36,-.9,.72,.5,.48);
+// Giường ngủ phòng 1 (có khoảng trống gầm giường để chui xuống trốn) & Tủ đầu giường
+for(let lx of [-2.60,-0.50])for(let lz of [-0.56,1.80])box(wood,lx,.17,lz,.12,.34,.12);
+box(M(0x263638),-1.55,.39,.62,2.30,.10,2.55);
+box(bed,-1.55,.53,.62,2.22,.18,2.47);
+box(pink,-1.75,.67,.45,1.25,.15,1.25);
+box(yellow,-.82,.67,-.05,.82,.13,.72);
+box(M(0xacc3cc),-1.55,.76,1.86,1.45,.26,.48);
+box(M(0x31545a),-2.05,.63,1.7,1.10,.15,.45);
+box(dark,-3.2,.20,.75,.82,.40,.62);
+box(M(0x9d5260),-3.2,.49,.62,.68,.18,.42);
+box(M(0x527d8e),4,.25,-.9,.72,.5,.48);
 
 // Quạt đứng
-cyl(white,-.1,.12,2.48,.4,.34,.13,28);cyl(metal,-.1,.78,2.48,.045,.07,1.2);let head=new T.Group();head.position.set(-.1,1.48,2.48);head.rotation.y=Math.PI;scene.add(head);cyl(white,0,0,0,.16,.17,.18,16,head).rotation.x=Math.PI/2;let cage=new T.Group();cage.position.z=.1;head.add(cage);for(let r of [.54,.44,.28]){let ring=new T.Mesh(new T.TorusGeometry(r,.012,6,40),metal);cage.add(ring)}for(let i=0;i<16;i++){let a=i*Math.PI/8,o=box(metal,Math.cos(a)*.26,Math.sin(a)*.26,0,.015,.015,.03,cage);o.rotation.z=a}let rotor=new T.Group();cage.add(rotor);for(let i=0;i<3;i++){let s=new T.Shape();s.moveTo(0,0);s.bezierCurveTo(.14,.1,.18,.44,.07,.48);s.bezierCurveTo(-.04,.42,-.07,.12,0,0);let b=new T.Mesh(new T.ShapeGeometry(s),new T.MeshStandardMaterial({color:0xd9ded8,roughness:.4,side:T.DoubleSide}));b.rotation.z=i*Math.PI*2/3;b.position.z=.02;b.castShadow=true;rotor.add(b)}ball(white,0,0,.06,.09,rotor);
+cyl(white,-.1,.065,2.48,.4,.34,.13,28);
+cyl(metal,-.1,.73,2.48,.045,.07,1.2);
+let head=new T.Group();head.position.set(-.1,1.43,2.48);head.rotation.y=Math.PI;scene.add(head);
+cyl(white,0,0,0,.16,.17,.18,16,head).rotation.x=Math.PI/2;
+let cage=new T.Group();cage.position.z=.1;head.add(cage);
+for(let r of [.54,.44,.28]){let ring=new T.Mesh(new T.TorusGeometry(r,.012,6,40),metal);cage.add(ring)}
+for(let i=0;i<16;i++){let a=i*Math.PI/8,o=box(metal,Math.cos(a)*.27,Math.sin(a)*.27,0,.54,.01,.01,cage);o.rotation.z=a}
+let rotor=new T.Group();cage.add(rotor);
+for(let i=0;i<3;i++){let s=new T.Shape();s.moveTo(0,0);s.bezierCurveTo(.14,.1,.18,.44,.07,.48);s.bezierCurveTo(-.04,.42,-.07,.12,0,0);let b=new T.Mesh(new T.ShapeGeometry(s),new T.MeshStandardMaterial({color:0xd9ded8,roughness:.4,side:T.DoubleSide}));b.rotation.z=i*Math.PI*2/3;b.position.z=.02;b.castShadow=true;rotor.add(b)}
+ball(white,0,0,.06,.09,rotor);
 
-// Điều hoà trên cửa sổ
-box(white,.95,2.82,-3.27,1.45,.38,.38);box(M(0x3d5657),.95,2.64,-3.005,.88,.02,.025);
+// Điều hòa phòng 1
+box(white,2.75,2.78,-3.27,1.45,.38,.38);
+box(M(0x3d5657),2.75,2.62,-3.09,.96,.025,.03);
 
-// Đèn treo (Pendant Lamp) ở chính giữa phòng (x = 0, z = 0) & Nguồn sáng phát ra đúng từ bóng đèn
+// Đèn treo (Pendant Lamp) ở chính giữa phòng
 const pendantGroup = new T.Group();
 pendantGroup.position.set(0, 0, 0);
 scene.add(pendantGroup);
-cyl(dark, 0, 3.13, 0, .11, .11, .05, 20, pendantGroup); // Đế ốp trần
-cyl(dark, 0, 2.76, 0, .012, .012, .72, 12, pendantGroup); // Dây cáp treo đèn
-cyl(metal, 0, 2.41, 0, .045, .045, .08, 16, pendantGroup); // Đui đèn
-// Chao đèn thả trần mở bên dưới
+cyl(dark, 0, 3.13, 0, .11, .11, .05, 20, pendantGroup);
+cyl(dark, 0, 2.76, 0, .012, .012, .72, 12, pendantGroup);
+cyl(metal, 0, 2.41, 0, .045, .045, .08, 16, pendantGroup);
 const shadeGeo = new T.CylinderGeometry(.09, .34, .24, 28, 1, true);
 const shadeMat = new T.MeshStandardMaterial({color:0x243034, roughness:.45, metalness:.3, side:T.DoubleSide});
 const shadeMesh = new T.Mesh(shadeGeo, shadeMat);
 shadeMesh.position.set(0, 2.28, 0);
 shadeMesh.castShadow = true;
 pendantGroup.add(shadeMesh);
-// Bóng đèn phát sáng bên trong chao đèn
 const bulbMesh = ball(bulbMat, 0, 2.22, 0, .085, pendantGroup);
 
-// Cửa ra vào (Đã xoá hoàn toàn 2 thanh khung cửa bay lơ lửng)
+// Cửa ra vào
 let door=new T.Group();door.position.set(4.42,0,2.35);scene.add(door);
 box(wood2,-.015,1.22,-.46,.12,2.44,.94,door);
 box(wood,-.08,1.22,-.46,.07,2.32,.82,door);
@@ -360,22 +384,22 @@ for(let y of [.55,1.28,1.93])box(wood2,-.035,y,-.46,.03,.46,.61,door);
 box(M(0x111819),-.01,2.17,-.46,.04,.34,.78,door);
 ball(metal,-.14,1.02,-.17,.07,door);
 
-// Công tắc bật/tắt điện trên tường cạnh cửa ra vào
+// Công tắc bật/tắt điện phòng 1
 const switchGroup = new T.Group();
-switchGroup.position.set(4.42, 1.18, 1.07);
+switchGroup.position.set(4.445, 1.18, 1.07);
 scene.add(switchGroup);
-box(white, 0, 0, 0, .03, .24, .16, switchGroup); // Mặt đế công tắc
-box(M(0xb8c2bc,.3), -.012, 0, 0, .015, .18, .11, switchGroup); // Viền trong
-const switchRocker = box(M(0xf4f7f5,.2), -.022, 0, 0, .022, .09, .055, switchGroup); // Nút bấm gạt
+box(white, 0, 0, 0, .03, .24, .16, switchGroup);
+box(M(0xb8c2bc,.3), -.012, 0, 0, .015, .18, .11, switchGroup);
+const switchRocker = box(M(0xf4f7f5,.2), -.022, 0, 0, .022, .09, .055, switchGroup);
 const switchLed = box(M(0x52eb85,.2,0,{emissive:0x2ecc71,emissiveIntensity:1.2}), -.028, -.065, 0, .01, .012, .028, switchGroup);
 switchRocker.rotation.z = 0.22;
 
-// Câu đối chữ 錢 trên tường phải
+// Câu đối chữ 錢
 const scrollZ = 0.05;
-box(M(0xd6c28e,.6), 4.43, 1.98, scrollZ, .016, 1.06, .56);
-box(M(0xb53d37,.5), 4.415, 1.98, scrollZ, .014, .78, .44);
-let topRoller = cyl(wood, 4.41, 2.52, scrollZ, .022, .022, .64, 14); topRoller.rotation.x = Math.PI/2;
-let botRoller = cyl(wood, 4.41, 1.44, scrollZ, .025, .025, .66, 14); botRoller.rotation.x = Math.PI/2;
+box(M(0xd6c28e,.6), 4.452, 1.98, scrollZ, .016, 1.06, .56);
+box(M(0xb53d37,.5), 4.442, 1.98, scrollZ, .014, .78, .44);
+let topRoller = cyl(wood, 4.438, 2.52, scrollZ, .022, .022, .64, 14); topRoller.rotation.x = Math.PI/2;
+let botRoller = cyl(wood, 4.438, 1.44, scrollZ, .025, .025, .66, 14); botRoller.rotation.x = Math.PI/2;
 
 let sc=document.createElement('canvas');sc.width=512;sc.height=840;
 let sx=sc.getContext('2d');
@@ -387,38 +411,222 @@ sx.textAlign='center';sx.textBaseline='middle';
 sx.fillText('錢',256,420);
 let st=new T.CanvasTexture(sc);st.colorSpace=T.SRGBColorSpace;
 let sp=new T.Mesh(new T.PlaneGeometry(.42,.74),new T.MeshStandardMaterial({map:st,roughness:.55}));
-sp.position.set(4.398, 1.98, scrollZ);
+sp.position.set(4.432, 1.98, scrollZ);
 sp.rotation.y=-Math.PI/2;
 scene.add(sp);
 
-// Tầng hai: hành lang và phòng ngủ đối diện, dựng riêng ngoài căn phòng gốc.
+// Tầng hai: hành lang
 const hallFloor=M(0x777871,.78),hallWall=M(0xaaa99f,.92),hallTrim=M(0xd4cbbb,.65),roomWall=M(0xe8dfd4,.9),softWood=M(0xa87859,.55),linen=M(0xe5dfd5,.92),duvet=M(0x71949a,.92),lavender=M(0xc6b3d8,.8),rose=M(0xe9b8bb,.75);
-box(hallFloor,7.8,-.12,1.90,6.65,.24,3.06);box(hallWall,7.8,1.56,.34,6.65,3.12,.15);box(hallWall,7.8,1.56,3.46,6.65,3.12,.15);box(hallWall,7.8,3.22,1.90,6.65,.16,3.12);
-box(hallWall,7.86,1.56,1.90,.15,3.12,1.12);box(hallWall,7.86,2.82,1.90,.15,.60,1.04);
-box(hallTrim,7.8,3.08,.43,6.6,.10,.10);box(hallTrim,7.8,3.08,3.37,6.6,.10,.10);box(M(0x435050,.92),7.8,.015,1.90,5.6,.035,1.15);
+box(hallFloor,7.8,-.125,1.90,6.65,.25,3.06);
+box(hallWall,7.8,1.56,.34,6.65,3.12,.15);
+box(hallWall,7.8,1.56,3.46,6.65,3.12,.15);
+box(hallWall,7.8,3.22,1.90,6.65,.16,3.12);
+box(hallTrim,7.8,3.08,.43,6.6,.10,.10);
+box(hallTrim,7.8,3.08,3.37,6.6,.10,.10);
+box(M(0x435050,.92),7.8,.015,1.90,5.6,.035,1.15);
 for(let x of [5.6,8.0,10.2]){box(dark,x,3.03,1.90,.42,.08,.62);let hl=new T.PointLight(0xffd9a4,5.5,4.4,2);hl.position.set(x,2.82,1.90);scene.add(hl)}
-for(let x of [6.1,9.1]){box(softWood,x,1.92,.245,.62,.72,.035);box(M(0xc1d0c4),x,1.92,.218,.52,.62,.018);box(softWood,x,1.92,3.555,.62,.72,.035);box(M(0xd4c4b2),x,1.92,3.582,.52,.62,.018)}
-const guestDoor=new T.Group();guestDoor.position.set(11.10,0,2.39);scene.add(guestDoor);box(wood2,-.015,1.20,-.49,.12,2.40,.98,guestDoor);box(softWood,-.08,1.20,-.49,.07,2.28,.86,guestDoor);box(wood2,-.035,2.13,-.49,.03,.20,.74,guestDoor);ball(metal,-.15,1.0,-.16,.055,guestDoor);box(hallTrim,11.06,2.50,2.39,.12,.08,1.13);
-box(M(0xaaa89e,.86),15.32,-.13,1.90,8.44,.25,7.05);box(roomWall,15.32,1.56,-1.68,8.44,3.12,.16);box(roomWall,15.32,1.56,5.48,8.44,3.12,.16);box(roomWall,19.62,1.56,1.90,.16,3.12,7.0);box(M(0xd9d2c8),15.32,3.22,1.90,8.44,.16,7.05);
-box(roomWall,11.12,1.56,-.35,.16,3.12,2.66);box(roomWall,11.12,1.56,4.15,.16,3.12,2.66);box(roomWall,11.12,2.82,1.90,.16,.60,2.0);for(let z of [-1.55,5.35])box(hallTrim,15.32,3.08,z,8.25,.10,.12);for(let x of [11.28,19.48])box(hallTrim,x,3.08,1.90,.12,.10,6.8);
-const bedroomLampMat=M(0xffe8bd,.28,0,{emissive:0xffc873,emissiveIntensity:1.2});box(dark,15.35,3,1.85,.28,.08,.28);cyl(wood2,15.35,2.82,1.85,.035,.035,.30,12);let guestShade=new T.Mesh(new T.CylinderGeometry(.12,.43,.30,28,1,true),new T.MeshStandardMaterial({color:0xe6cfac,roughness:.55,side:T.DoubleSide}));guestShade.position.set(15.35,2.60,1.85);scene.add(guestShade);ball(bedroomLampMat,15.35,2.52,1.85,.11);const bedroomLight=new T.PointLight(0xffd7a5,32,10,1.8);bedroomLight.position.set(15.35,2.5,1.85);bedroomLight.castShadow=true;scene.add(bedroomLight);
-const bedroomSwitch=new T.Group();bedroomSwitch.position.set(11.42,1.22,1.13);bedroomSwitch.rotation.y=Math.PI/2;scene.add(bedroomSwitch);box(white,0,0,0,.035,.26,.17,bedroomSwitch);box(M(0xb8c2bc,.3),-.02,0,0,.018,.19,.12,bedroomSwitch);const bedroomRocker=box(M(0xf4f7f5,.2),-.04,0,0,.025,.095,.06,bedroomSwitch);bedroomRocker.rotation.z=.20;box(M(0x52eb85,.2,0,{emissive:0x2ecc71,emissiveIntensity:1}),-.045,-.075,0,.012,.014,.03,bedroomSwitch);let bedroomLightOn=true;
-// Giường bọc nệm nhiều lớp, chăn gối và hai tủ đầu giường.
-box(wood2,16.95,.28,.15,2.38,.42,3.15);box(linen,16.95,.56,.15,2.32,.20,3.08);box(duvet,17.02,.70,.55,2.20,.18,2.10);box(M(0x91afb0,.95),17.02,.80,-.28,2.20,.055,.18);box(M(0xeadfeb,.9),17.02,.68,-1.08,.82,.19,.55);box(M(0xf1e8df,.9),17.88,.68,-1.08,.82,.19,.55);box(lavender,16.95,1.02,-1.40,2.44,.84,.22);box(rose,17.02,.81,1.42,1.10,.12,.62);
-for(let x of [15.35,18.50]){box(softWood,x,.54,-1.13,.62,.90,.58);box(wood2,x,.72,-.82,.60,.08,.58);box(linen,x,.98,-1.13,.27,.30,.27);cyl(wood2,x,1.24,-1.13,.035,.035,.22,10);cyl(M(0xe7d7bd),x,1.40,-1.13,.16,.22,.18,16);let sl=new T.PointLight(0xffd29c,4.2,2.5,2);sl.position.set(x,1.45,-1.13);scene.add(sl)}
-// Tủ pastel dễ thương, có tay nắm nhỏ và tai trang trí.
-box(M(0xf0e7e0,.75),12.05,1.30,3.78,1.72,2.55,.86);box(M(0xecd9e3,.75),12.05,1.38,3.31,1.60,2.28,.08);box(M(0xf7edf0,.72),11.66,1.38,3.25,.75,2.20,.06);box(M(0xf7edf0,.72),12.44,1.38,3.25,.75,2.20,.06);let ear1=box(rose,11.53,2.64,3.30,.20,.34,.09);ear1.rotation.z=-.35;let ear2=box(rose,12.57,2.64,3.30,.20,.34,.09);ear2.rotation.z=.35;for(let x of [11.91,12.19])ball(M(0xd2a86c,.3,.4),x,1.40,3.19,.055);for(let y of [.67,1.11,1.55,1.99]){box(M(0xd4c8bb),11.66,y,3.18,.40,.025,.018);box(M(0xd4c8bb),12.44,y,3.18,.40,.025,.018)}
-// Bàn học, laptop gaming RGB và ghế.
-box(softWood,18.42,1.02,1.62,.88,.14,2.35);for(let z of [.62,2.62])for(let x of [18.12,18.72])box(wood2,x,.51,z,.09,1,.09);box(dark,18.17,1.13,1.62,.44,.045,.56);const gamingScreenFace=box(M(0x38d8c9,.28,.3,{emissive:0x147f91,emissiveIntensity:.12}),17.91,1.39,1.62,.045,.48,.70);box(M(0x48c8aa,.3,.25,{emissive:0x1a735f,emissiveIntensity:.32}),18.17,1.16,1.62,.40,.018,.50);for(let z=.78;z<2.5;z+=.13)box(M(0x8fc7c0,.6,.2),18.08,1.16,z,.012,.009,.025);box(dark,17.25,.58,1.62,.64,.10,.64);for(let x of [17.02,17.48])for(let z of [1.39,1.85])box(wood2,x,.29,z,.06,.54,.06);box(dark,17.25,1,1.96,.60,.82,.08);box(rose,17.25,.86,1.90,.42,.10,.13);
-// Bàn trang điểm, gương viền sáng và ghế đôn.
-box(softWood,13.88,.92,-.78,1.78,.13,.70);for(let x of [13.20,14.56])box(wood2,x,.48,-.78,.10,.86,.12);for(let z of [-.94,-.64])box(M(0xd9c5b4),13.88,.75,z,1.34,.025,.025);box(dark,13.88,.48,-.42,.58,.12,.38);for(let x of [13.65,14.11])box(wood2,x,.25,-.42,.055,.46,.055);const mirrorFrame=new T.Mesh(new T.TorusGeometry(.46,.055,10,36),M(0xc9a86d,.27,.65));mirrorFrame.position.set(13.88,1.72,-.94);scene.add(mirrorFrame);box(M(0x9fc5ce,.12,.35,{metalness:.55}),13.88,1.72,-.955,.74,.88,.025);for(let i=0;i<5;i++)ball(M(0xfff0cb,.22,0,{emissive:0xffd88a,emissiveIntensity:.65}),13.55+i*.165,1.72,-.99,.035);
-// Quạt trần 9 cánh, rotor riêng để có thể bật tắt.
-const nineFan=new T.Group();nineFan.position.set(14.35,2.88,2.75);scene.add(nineFan);cyl(metal,0,.02,0,.16,.16,.12,20,nineFan);cyl(white,-.13,0,0,.025,.025,.30,12,nineFan);const nineRotor=new T.Group();nineRotor.position.y=-.30;nineFan.add(nineRotor);cyl(M(0xbac6c3,.28,.4),0,0,0,.13,.13,.10,18,nineRotor);for(let i=0;i<9;i++){let a=i*Math.PI*2/9;let blade=box(M(i%2?0xc9d4cf:0xd9ded8,.45,.15),Math.cos(a)*.74,0,Math.sin(a)*.74,.92,.045,.22,nineRotor);blade.rotation.y=-a;blade.rotation.z=.025}let bedroomFanOn=true;
-// Điều hòa, kệ sách và poster anime minh họa nguyên bản.
-box(white,19.12,2.72,.10,.40,.54,1.62);box(M(0x657477),18.90,2.52,.10,.035,.035,1.24);box(softWood,12.38,1.10,1.05,.56,2.0,1.18);for(let y of [.45,.90,1.35,1.80]){box(M(0xcab9a8),12.38,y,1.05,.51,.025,1.08);box(M(0x75898b),12.38,y+.13,1.10,.28,.22,.62)}
-function animePoster(x,hair,accent,title){let pc=document.createElement('canvas');pc.width=320;pc.height=440;let p=pc.getContext('2d');let gr=p.createLinearGradient(0,0,320,440);gr.addColorStop(0,'#172a42');gr.addColorStop(.55,accent);gr.addColorStop(1,'#f3c9bf');p.fillStyle=gr;p.fillRect(0,0,320,440);p.fillStyle='#fff8e6';for(let i=0;i<24;i++){p.beginPath();p.arc((i*71+23)%320,(i*113+31)%250,(i%3)+1,0,7);p.fill()}p.fillStyle='#283342';p.beginPath();p.ellipse(160,285,97,125,0,0,7);p.fill();p.fillStyle=hair;p.beginPath();p.moveTo(73,174);p.quadraticCurveTo(65,55,160,75);p.quadraticCurveTo(267,55,247,183);p.lineTo(217,160);p.lineTo(204,235);p.lineTo(112,235);p.lineTo(91,160);p.closePath();p.fill();p.fillStyle='#f4c9ab';p.beginPath();p.ellipse(160,185,61,76,0,0,7);p.fill();p.fillStyle='#263746';p.beginPath();p.ellipse(137,188,9,15,0,0,7);p.ellipse(183,188,9,15,0,0,7);p.fill();p.strokeStyle='#a44f58';p.lineWidth=5;p.beginPath();p.arc(160,216,16,.2,Math.PI-.2);p.stroke();p.fillStyle='#fff8e6';p.font='bold 24px Georgia';p.textAlign='center';p.fillText(title,160,405);let tx=new T.CanvasTexture(pc);tx.colorSpace=T.SRGBColorSpace;box(softWood,x,2,5.40,.82,1.22,.055);let pm=new T.Mesh(new T.PlaneGeometry(.72,1.12),new T.MeshBasicMaterial({map:tx}));pm.position.set(x,2,5.365);pm.rotation.y=Math.PI;scene.add(pm)}animePoster(14.55,'#201c36','#497a91','MOONLIGHT');animePoster(15.65,'#b9594c','#b57890','STARBOUND');animePoster(17.62,'#315968','#799d8e','AFTER SCHOOL');
+for(let x of [6.1,9.1]){
+  box(softWood,x,1.92,.432,.62,.72,.035);
+  box(M(0xc1d0c4),x,1.92,.445,.52,.62,.018);
+  box(softWood,x,1.92,3.368,.62,.72,.035);
+  box(M(0xd4c4b2),x,1.92,3.355,.52,.62,.018);
+}
 
-// Hệ thống ánh sáng (Nguồn sáng đèn treo đặt ngay tại vị trí bóng đèn giữa phòng: 0, 2.16, 0)
+// Cửa và vỏ phòng ngủ đối diện
+const guestDoor=new T.Group();guestDoor.position.set(11.18,0,2.39);scene.add(guestDoor);
+box(wood2,-.015,1.20,-.49,.12,2.40,.98,guestDoor);
+box(softWood,-.08,1.20,-.49,.07,2.28,.86,guestDoor);
+box(wood2,-.035,2.13,-.49,.03,.20,.74,guestDoor);
+ball(metal,-.15,1.0,-.16,.055,guestDoor);
+box(hallTrim,11.08,2.46,1.90,.12,.08,1.08);
+
+box(M(0xaaa89e,.86),15.32,-.125,1.90,8.44,.25,7.05);
+box(roomWall,15.32,1.56,-1.68,8.44,3.12,.16);
+box(roomWall,15.32,1.56,5.48,8.44,3.12,.16);
+box(roomWall,19.62,1.56,1.90,.16,3.12,7.0);
+box(M(0xd9d2c8),15.32,3.22,1.90,8.44,.16,7.05);
+box(roomWall,11.12,1.56,-.14,.16,3.12,3.08);
+box(roomWall,11.12,1.56,3.94,.16,3.12,3.08);
+box(roomWall,11.12,2.76,1.90,.16,.72,1.0);
+for(let z of [-1.55,5.35])box(hallTrim,15.32,3.08,z,8.25,.10,.12);
+for(let x of [11.25,19.48])box(hallTrim,x,3.08,1.90,.12,.10,6.8);
+
+const bedroomLampMat=M(0xffe8bd,.28,0,{emissive:0xffc873,emissiveIntensity:1.2});
+box(dark,15.35,3.08,1.85,.28,.08,.28);
+cyl(wood2,15.35,2.89,1.85,.035,.035,.30,12);
+let guestShade=new T.Mesh(new T.CylinderGeometry(.12,.43,.30,28,1,true),new T.MeshStandardMaterial({color:0xe6cfac,roughness:.55,side:T.DoubleSide}));
+guestShade.position.set(15.35,2.66,1.85);
+scene.add(guestShade);
+ball(bedroomLampMat,15.35,2.58,1.85,.11);
+const bedroomLight=new T.PointLight(0xffd7a5,32,10,1.8);
+bedroomLight.position.set(15.35,2.55,1.85);
+bedroomLight.castShadow=true;
+scene.add(bedroomLight);
+
+// Công tắc đèn trần phòng ngủ
+const bedroomSwitch=new T.Group();
+bedroomSwitch.position.set(11.218,1.22,1.13);
+bedroomSwitch.rotation.y=Math.PI;
+scene.add(bedroomSwitch);
+box(white,0,0,0,.035,.26,.17,bedroomSwitch);
+box(M(0xb8c2bc,.3),-.02,0,0,.018,.19,.12,bedroomSwitch);
+const bedroomRocker=box(M(0xf4f7f5,.2),-.04,0,0,.025,.095,.06,bedroomSwitch);bedroomRocker.rotation.z=.20;
+box(M(0x52eb85,.2,0,{emissive:0x2ecc71,emissiveIntensity:1}),-.045,-.075,0,.012,.014,.03,bedroomSwitch);
+let bedroomLightOn=true;
+
+// Giường ngủ phòng 2 (nâng trên 4 chân đế tạo khoảng trống gầm giường để chui xuống trốn)
+for(let lx of [15.86,18.04])for(let lz of [-1.40,1.50])box(wood,lx,.18,lz,.12,.36,.12);
+box(wood2,16.95,.42,.05,2.36,.12,3.10);
+box(linen,16.95,.57,.05,2.30,.18,3.04);
+box(duvet,17.02,.71,.45,2.18,.16,2.08);
+box(M(0x91afb0,.95),17.02,.80,-.35,2.18,.055,.18);
+box(M(0xeadfeb,.9),16.45,.72,-1.12,.82,.18,.52);
+box(M(0xf1e8df,.9),17.45,.72,-1.12,.82,.18,.52);
+box(lavender,16.95,1.02,-1.50,2.42,.88,.18);
+box(rose,17.02,.83,1.32,1.08,.12,.60);
+
+// Hai tab đầu giường, hai đèn ngủ và 2 công tắc tắt/bật đèn ngủ hai bên tường Bắc
+const leftNightShadeMat = M(0xe7d7bd,.45,0,{emissive:0xffc873,emissiveIntensity:.85});
+const rightNightShadeMat = M(0xe7d7bd,.45,0,{emissive:0xffc873,emissiveIntensity:.85});
+const leftNightLight = new T.PointLight(0xffd29c, 5.2, 2.8, 2);
+leftNightLight.position.set(15.10, 1.52, -1.29);
+scene.add(leftNightLight);
+const rightNightLight = new T.PointLight(0xffd29c, 5.2, 2.8, 2);
+rightNightLight.position.set(18.80, 1.52, -1.29);
+scene.add(rightNightLight);
+
+let leftNightOn = true, rightNightOn = true;
+
+for(let side of [
+  {x:15.10, shadeMat:leftNightShadeMat},
+  {x:18.80, shadeMat:rightNightShadeMat}
+]){
+  box(softWood,side.x,.45,-1.29,.60,.90,.58);
+  box(wood2,side.x,.72,-.995,.54,.22,.03);
+  box(linen,side.x,1.05,-1.29,.26,.30,.26);
+  cyl(wood2,side.x,1.31,-1.29,.035,.035,.22,10);
+  cyl(side.shadeMat,side.x,1.47,-1.29,.16,.22,.18,16);
+}
+
+function makeWallSwitchZ(x, y, z){
+  const g = new T.Group();
+  g.position.set(x, y, z);
+  scene.add(g);
+  box(white, 0, 0, 0, .15, .24, .03, g);
+  box(M(0xb8c2bc,.3), 0, 0, .014, .11, .18, .014, g);
+  const rocker = box(M(0xf4f7f5,.2), 0, 0, .024, .055, .09, .022, g);
+  rocker.rotation.x = -0.22;
+  const led = box(M(0x52eb85,.2,0,{emissive:0x2ecc71,emissiveIntensity:1.1}), 0, -.065, .026, .028, .012, .01, g);
+  return {group:g, rocker, led};
+}
+const leftNightSwitch = makeWallSwitchZ(15.52, 1.18, -1.585);
+const rightNightSwitch = makeWallSwitchZ(18.35, 1.18, -1.585);
+
+// Tủ pastel dễ thương (sát tường Nam z = 4.95)
+box(M(0xf0e7e0,.75),12.15,1.275,4.95,1.72,2.55,.86);
+box(M(0xecd9e3,.75),12.15,1.38,4.48,1.60,2.28,.08);
+box(M(0xf7edf0,.72),11.76,1.38,4.42,.75,2.20,.06);
+box(M(0xf7edf0,.72),12.54,1.38,4.42,.75,2.20,.06);
+let ear1=box(rose,11.63,2.62,4.47,.20,.34,.09);ear1.rotation.z=-.35;
+let ear2=box(rose,12.67,2.62,4.47,.20,.34,.09);ear2.rotation.z=.35;
+for(let x of [12.01,12.29])ball(M(0xd2a86c,.3,.4),x,1.40,4.36,.055);
+for(let y of [.67,1.11,1.55,1.99]){
+  box(M(0xd4c8bb),11.76,y,4.385,.40,.025,.018);
+  box(M(0xd4c8bb),12.54,y,4.385,.40,.025,.018);
+}
+
+// Bàn học để laptop và ghế nằm ở dưới chỗ treo 2 bức tranh (tường Nam z = 4.94)
+const desk2X = 16.40, desk2Z = 4.94;
+box(softWood,desk2X,1.02,desk2Z,2.35,.14,.88);
+for(let x of [desk2X-1.0,desk2X+1.0])for(let z of [desk2Z-.32,desk2Z+.32])box(wood2,x,.51,z,.09,1,.09);
+// Laptop gaming đặt trên bàn học, màn hình hướng về phía ghế (hướng Bắc -z)
+box(dark,desk2X,1.11,desk2Z+.06,.56,.04,.44);
+box(dark,desk2X,1.37,desk2Z+.28,.68,.48,.035);
+const gamingScreenFace=box(M(0x38d8c9,.28,.3,{emissive:0x147f91,emissiveIntensity:.12}),desk2X,1.37,desk2Z+.26,.62,.42,.012);
+box(M(0x48c8aa,.3,.25,{emissive:0x1a735f,emissiveIntensity:.32}),desk2X,1.132,desk2Z+.03,.50,.008,.38);
+for(let ix=0;ix<8;ix++)for(let iz=0;iz<4;iz++)box(M(0x8fc7c0,.6,.2),desk2X-.21+ix*.06,1.138,desk2Z-.10+iz*.065,.038,.008,.032);
+// Ghế bàn học đặt phía trước bàn học (hướng mặt về bàn/tranh)
+const chair2X = desk2X, chair2Z = 4.10;
+box(dark,chair2X,.58,chair2Z,.64,.10,.64);
+for(let dx of [-.23,.23])for(let dz of [-.23,.23])box(wood2,chair2X+dx,.29,chair2Z+dz,.06,.54,.06);
+box(dark,chair2X,1.0,chair2Z-.34,.60,.82,.08);
+box(rose,chair2X,.86,chair2Z-.28,.42,.10,.13);
+
+// Bàn trang điểm (sát tường Bắc z = -1.28), gương soi và ghế đôn ngồi soi gương
+const vanityX = 13.45, vanityZ = -1.28, vanityStoolZ = -0.68;
+box(softWood,vanityX,.92,vanityZ,1.56,.13,.62);
+for(let x of [vanityX-.66,vanityX+.66])box(wood2,x,.48,vanityZ,.10,.86,.12);
+for(let z of [vanityZ-.16,vanityZ+.14])box(M(0xd9c5b4),vanityX,.75,z,1.22,.025,.025);
+box(dark,vanityX,.46,vanityStoolZ,.56,.10,.38);
+for(let x of [vanityX-.21,vanityX+.21])box(wood2,x,.23,vanityStoolZ,.055,.44,.055);
+const mirrorFrame=new T.Mesh(new T.TorusGeometry(.44,.05,10,36),M(0xc9a86d,.27,.65));
+mirrorFrame.position.set(vanityX,1.68,-1.55);
+scene.add(mirrorFrame);
+const mirrorGlass=new T.Mesh(new T.CylinderGeometry(.42,.42,.02,36),M(0xb8d9e2,.06,.75,{emissive:0x22383e,emissiveIntensity:.25}));
+mirrorGlass.rotation.x=Math.PI/2;
+mirrorGlass.position.set(vanityX,1.68,-1.565);
+scene.add(mirrorGlass);
+for(let i=0;i<5;i++){
+  let ang = Math.PI * (0.2 + i * 0.15);
+  ball(M(0xfff0cb,.22,0,{emissive:0xffd88a,emissiveIntensity:.75}),vanityX + Math.cos(ang)*.44, 1.68 + Math.sin(ang)*.44, -1.50, .03);
+}
+
+// Quạt trần 9 cánh
+const nineFan=new T.Group();nineFan.position.set(14.35,3.08,2.25);scene.add(nineFan);
+cyl(metal,0,0,0,.16,.16,.12,20,nineFan);
+cyl(white,0,-.15,0,.025,.025,.30,12,nineFan);
+const nineRotor=new T.Group();nineRotor.position.y=-.30;nineFan.add(nineRotor);
+cyl(M(0xbac6c3,.28,.4),0,0,0,.13,.13,.10,18,nineRotor);
+for(let i=0;i<9;i++){let a=i*Math.PI*2/9;let blade=box(M(i%2?0xc9d4cf:0xd9ded8,.45,.15),Math.cos(a)*.74,0,Math.sin(a)*.74,.92,.045,.22,nineRotor);blade.rotation.y=-a;blade.rotation.z=.025}
+let bedroomFanOn=true;
+
+// Điều hòa phòng 2 (tường Đông x = 19.34, z = 0.85) & Kệ sách mở (góc Bắc-Tây)
+box(white,19.34,2.72,.85,.40,.54,1.50);
+box(M(0x657477),19.13,2.50,.85,.03,.03,1.16);
+
+const shelfX=11.50, shelfZ=-0.75;
+box(softWood,shelfX-.24,1.0,shelfZ,.04,2.0,1.18);
+box(softWood,shelfX,1.0,shelfZ-.57,.52,2.0,.04);
+box(softWood,shelfX,1.0,shelfZ+.57,.52,2.0,.04);
+box(softWood,shelfX,1.98,shelfZ,.52,.04,1.18);
+const bookColors=[0x75898b,0xb56576,0x6d597a,0xd4a373,0x457b9d];
+for(let idx=0;idx<4;idx++){
+  let y = 0.04 + idx*0.48;
+  box(M(0xcab9a8),shelfX,y,shelfZ,.48,.03,1.10);
+  for(let b=0;b<4;b++){
+    box(M(bookColors[(idx+b)%bookColors.length]),shelfX+.04,y+.15,shelfZ-.34+b*.22,.28,.26,.14);
+  }
+}
+
+// Hàm tạo tranh anime (hỗ trợ treo trên tường Nam hoặc tường Đông)
+function animePoster(x,y,z,rotY,hair,accent,title){
+  let pc=document.createElement('canvas');pc.width=320;pc.height=440;let p=pc.getContext('2d');
+  let gr=p.createLinearGradient(0,0,320,440);gr.addColorStop(0,'#172a42');gr.addColorStop(.55,accent);gr.addColorStop(1,'#f3c9bf');
+  p.fillStyle=gr;p.fillRect(0,0,320,440);
+  p.fillStyle='#fff8e6';for(let i=0;i<24;i++){p.beginPath();p.arc((i*71+23)%320,(i*113+31)%250,(i%3)+1,0,7);p.fill()}
+  p.fillStyle='#283342';p.beginPath();p.ellipse(160,285,97,125,0,0,7);p.fill();
+  p.fillStyle=hair;p.beginPath();p.moveTo(73,174);p.quadraticCurveTo(65,55,160,75);p.quadraticCurveTo(267,55,247,183);p.lineTo(217,160);p.lineTo(204,235);p.lineTo(112,235);p.lineTo(91,160);p.closePath();p.fill();
+  p.fillStyle='#f4c9ab';p.beginPath();p.ellipse(160,185,61,76,0,0,7);p.fill();
+  p.fillStyle='#263746';p.beginPath();p.ellipse(137,188,9,15,0,0,7);p.ellipse(183,188,9,15,0,0,7);p.fill();
+  p.strokeStyle='#a44f58';p.lineWidth=5;p.beginPath();p.arc(160,216,16,.2,Math.PI-.2);p.stroke();
+  p.fillStyle='#fff8e6';p.font='bold 24px Georgia';p.textAlign='center';p.fillText(title,160,405);
+  let tx=new T.CanvasTexture(pc);tx.colorSpace=T.SRGBColorSpace;
+  const grp = new T.Group();
+  grp.position.set(x,y,z);
+  grp.rotation.y = rotY;
+  scene.add(grp);
+  box(softWood,0,0,0,.82,1.22,.055,grp);
+  let pm=new T.Mesh(new T.PlaneGeometry(.72,1.12),new T.MeshBasicMaterial({map:tx}));
+  pm.position.set(0,0,.032);
+  grp.add(pm);
+}
+// 1 tranh treo ở bên phải điều hòa trên tường Đông (x = 19.51, z = 2.55)
+animePoster(19.51, 2.02, 2.55, -Math.PI/2, '#201c36', '#497a91', 'MOONLIGHT');
+// 2 tranh treo trên tường Nam bên trên bàn học (x = 15.80 và x = 17.00, z = 5.37)
+animePoster(15.80, 2.05, 5.37, Math.PI, '#b9594c', '#b57890', 'STARBOUND');
+animePoster(17.00, 2.05, 5.37, Math.PI, '#315968', '#799d8e', 'AFTER SCHOOL');
+
+// Hệ thống ánh sáng
 const hemiLight = new T.HemisphereLight(0x9bbdc4, 0x453a31, 1.15);
 scene.add(hemiLight);
 let sun = new T.DirectionalLight(0x9cc6d0, 1.6);
@@ -428,7 +636,7 @@ sun.shadow.mapSize.set(1024, 1024);
 scene.add(sun);
 
 let lamp = new T.PointLight(0xffd7a2, 36, 11, 1.8);
-lamp.position.set(0, 2.16, 0); // Ngay dưới bóng đèn thả giữa phòng
+lamp.position.set(0, 2.16, 0);
 lamp.castShadow = true;
 scene.add(lamp);
 
@@ -441,7 +649,7 @@ let doorTarget=0,doorAngle=0,fanOn=false,wardrobeTarget=0,wardrobeAngle=0;
 let guestDoorTarget=0,guestDoorAngle=0,gamingLaptopOn=false;
 let lightOn = true;
 
-// Trạng thái nhân vật: 'stand' | 'sit' | 'bed' và vật lý nhảy
+// Trạng thái tư thế: 'stand' | 'sit' | 'sit2' | 'vanity' | 'bed' | 'bed2' | 'under_bed_1' | 'under_bed_2'
 let pose = 'stand';
 const standEyeY = 1.63;
 let playerY = standEyeY, velY = 0, isGrounded = true;
@@ -455,7 +663,7 @@ function say(t){
   e.textContent=t;
   e.style.display='block';
   clearTimeout(say.t);
-  say.t=setTimeout(()=>e.style.display='none',3400);
+  say.t=setTimeout(()=>e.style.display='none',3600);
 }
 
 let yaw=0,pitch=0,keys={},current=null;
@@ -466,11 +674,36 @@ function standUp() {
     camera.position.set(chairX, standEyeY, -1.02);
     playerY = standEyeY; velY = 0; isGrounded = true;
     say('Bạn đã đứng dậy khỏi ghế.');
+  } else if (pose === 'sit2') {
+    pose = 'stand';
+    camera.position.set(chair2X, standEyeY, 3.30);
+    playerY = standEyeY; velY = 0; isGrounded = true;
+    say('Bạn đã đứng dậy khỏi ghế.');
+  } else if (pose === 'vanity') {
+    pose = 'stand';
+    camera.position.set(vanityX, standEyeY, -0.05);
+    playerY = standEyeY; velY = 0; isGrounded = true;
+    say('Bạn đã đứng dậy khỏi bàn trang điểm.');
   } else if (pose === 'bed') {
     pose = 'stand';
     camera.position.set(0.35, standEyeY, 0.62);
     playerY = standEyeY; velY = 0; isGrounded = true;
     say('Bạn đã bước xuống khỏi giường.');
+  } else if (pose === 'bed2') {
+    pose = 'stand';
+    camera.position.set(15.20, standEyeY, 0.35);
+    playerY = standEyeY; velY = 0; isGrounded = true;
+    say('Bạn đã bước xuống khỏi giường.');
+  } else if (pose === 'under_bed_1') {
+    pose = 'stand';
+    camera.position.set(0.10, standEyeY, 0.62);
+    playerY = standEyeY; velY = 0; isGrounded = true;
+    say('Bạn đã chui ra khỏi gầm giường.');
+  } else if (pose === 'under_bed_2') {
+    pose = 'stand';
+    camera.position.set(15.20, standEyeY, 0.35);
+    playerY = standEyeY; velY = 0; isGrounded = true;
+    say('Bạn đã chui ra khỏi gầm giường.');
   }
 }
 
@@ -487,14 +720,79 @@ function toggleSit() {
   }
 }
 
+function toggleSit2() {
+  if (pose !== 'sit2') {
+    pose = 'sit2';
+    velY = 0; isGrounded = true;
+    camera.position.set(chair2X, 1.24, chair2Z);
+    yaw = Math.PI;
+    pitch = -0.08;
+    say('Bạn đã ngồi vào ghế bàn học. Nhấn Space hoặc E để đứng dậy.');
+  } else {
+    standUp();
+  }
+}
+
+function toggleVanity() {
+  if (pose !== 'vanity') {
+    pose = 'vanity';
+    velY = 0; isGrounded = true;
+    camera.position.set(vanityX, 1.24, vanityStoolZ);
+    yaw = 0;
+    pitch = 0.08;
+    say('Không có gì bất thường.');
+  } else {
+    standUp();
+  }
+}
+
 function toggleBed() {
   if (pose !== 'bed') {
     pose = 'bed';
     velY = 0; isGrounded = true;
-    camera.position.set(-1.65, 0.92, 1.48);
+    camera.position.set(-1.55, 0.98, 1.48);
     yaw = Math.PI;
     pitch = 0.22;
     say('Bạn đã nằm lên giường. Nhấn Space hoặc E để đứng dậy.');
+  } else {
+    standUp();
+  }
+}
+
+function toggleBed2() {
+  if (pose !== 'bed2') {
+    pose = 'bed2';
+    velY = 0; isGrounded = true;
+    camera.position.set(16.95, 1.02, -0.80);
+    yaw = Math.PI;
+    pitch = 0.22;
+    say('Bạn đã nằm lên giường. Nhấn Space hoặc E để đứng dậy.');
+  } else {
+    standUp();
+  }
+}
+
+function toggleUnderBed1() {
+  if (pose !== 'under_bed_1') {
+    pose = 'under_bed_1';
+    velY = 0; isGrounded = true;
+    camera.position.set(-1.25, 0.22, 0.62);
+    yaw = -Math.PI / 2;
+    pitch = 0.04;
+    say('Bạn đã chui xuống gầm giường trốn. Nhấn Space hoặc E để chui ra.');
+  } else {
+    standUp();
+  }
+}
+
+function toggleUnderBed2() {
+  if (pose !== 'under_bed_2') {
+    pose = 'under_bed_2';
+    velY = 0; isGrounded = true;
+    camera.position.set(16.65, 0.22, 0.35);
+    yaw = Math.PI / 2;
+    pitch = 0.04;
+    say('Bạn đã chui xuống gầm giường trốn. Nhấn Space hoặc E để chui ra.');
   } else {
     standUp();
   }
@@ -522,12 +820,17 @@ const targets=[
   },
   {
     name:'Giường ngủ',
-    pos:new T.Vector3(-1.55,.65,.85),
+    pos:new T.Vector3(-1.55,.72,.85),
     use(){ toggleBed(); }
   },
   {
+    name:'Gầm giường',
+    pos:new T.Vector3(-0.45,.20,.62),
+    use(){ toggleUnderBed1(); }
+  },
+  {
     name:'Công tắc đèn',
-    pos:new T.Vector3(4.39,1.18,1.07),
+    pos:new T.Vector3(4.44,1.18,1.07),
     use(){
       lightOn = !lightOn;
       switchRocker.rotation.z = lightOn ? 0.22 : -0.22;
@@ -547,7 +850,7 @@ const targets=[
   },
   {
     name:'Quạt đứng',
-    pos:new T.Vector3(-.1,1.48,2.48),
+    pos:new T.Vector3(-.1,1.43,2.48),
     use(){
       fanOn=!fanOn;done.f=fanOn;
       document.querySelector('#tf').classList.toggle('done',fanOn);
@@ -579,7 +882,7 @@ const targets=[
   },
   {
     name:'Cửa ra vào',
-    pos:new T.Vector3(4.14,1.2,1.9),
+    pos:new T.Vector3(4.42,1.2,1.9),
     use(){
       if(!done.l){say('Cửa bị khóa. Hãy kiểm tra chiếc laptop trên bàn trước.');return}
       doorTarget=doorTarget<.5?1.18:0;
@@ -590,7 +893,7 @@ const targets=[
   },
   {
     name:'Cửa phòng đối diện',
-    pos:new T.Vector3(10.86,1.2,1.9),
+    pos:new T.Vector3(11.12,1.2,1.9),
     use(){
       guestDoorTarget=guestDoorTarget<.5?1.18:0;
       say(guestDoorTarget>.5?'Cửa phòng ngủ đối diện đã mở.':'Cửa phòng ngủ đã khép lại.');
@@ -598,7 +901,7 @@ const targets=[
   },
   {
     name:'Công tắc đèn phòng ngủ',
-    pos:new T.Vector3(11.43,1.22,1.13),
+    pos:new T.Vector3(11.23,1.22,1.13),
     use(){
       bedroomLightOn=!bedroomLightOn;
       bedroomRocker.rotation.z=bedroomLightOn ? .20 : -.20;
@@ -608,14 +911,58 @@ const targets=[
     }
   },
   {
+    name:'Bàn trang điểm',
+    pos:new T.Vector3(vanityX,1.18,-1.15),
+    use(){ toggleVanity(); }
+  },
+  {
+    name:'Công tắc đèn ngủ trái',
+    pos:new T.Vector3(15.52,1.18,-1.56),
+    use(){
+      leftNightOn=!leftNightOn;
+      leftNightLight.intensity = leftNightOn ? 5.2 : 0;
+      leftNightShadeMat.emissiveIntensity = leftNightOn ? .85 : .02;
+      leftNightSwitch.rocker.rotation.x = leftNightOn ? -0.22 : 0.22;
+      leftNightSwitch.led.material.emissiveIntensity = leftNightOn ? 1.1 : 0;
+      say(leftNightOn ? 'Đã bật đèn ngủ bên trái.' : 'Đã tắt đèn ngủ bên trái.');
+    }
+  },
+  {
+    name:'Công tắc đèn ngủ phải',
+    pos:new T.Vector3(18.35,1.18,-1.56),
+    use(){
+      rightNightOn=!rightNightOn;
+      rightNightLight.intensity = rightNightOn ? 5.2 : 0;
+      rightNightShadeMat.emissiveIntensity = rightNightOn ? .85 : .02;
+      rightNightSwitch.rocker.rotation.x = rightNightOn ? -0.22 : 0.22;
+      rightNightSwitch.led.material.emissiveIntensity = rightNightOn ? 1.1 : 0;
+      say(rightNightOn ? 'Đã bật đèn ngủ bên phải.' : 'Đã tắt đèn ngủ bên phải.');
+    }
+  },
+  {
+    name:'Giường ngủ phòng ngủ',
+    pos:new T.Vector3(16.95,.75,.35),
+    use(){ toggleBed2(); }
+  },
+  {
+    name:'Gầm giường phòng ngủ',
+    pos:new T.Vector3(15.80,.20,.35),
+    use(){ toggleUnderBed2(); }
+  },
+  {
     name:'Quạt trần 9 cánh',
-    pos:new T.Vector3(14.35,1.95,2.75),
+    pos:new T.Vector3(14.35,2.25,2.25),
     use(){bedroomFanOn=!bedroomFanOn;say(bedroomFanOn?'Quạt trần 9 cánh bắt đầu quay.':'Quạt trần đã dừng.');}
   },
   {
     name:'Laptop gaming',
-    pos:new T.Vector3(17.89,1.4,1.62),
+    pos:new T.Vector3(desk2X,1.37,desk2Z+.18),
     use(){gamingLaptopOn=!gamingLaptopOn;gamingScreenFace.material.emissiveIntensity=gamingLaptopOn ? .9 : .12;say(gamingLaptopOn?'Laptop gaming đã bật, đèn RGB sáng lên.':'Laptop gaming đã tắt.');}
+  },
+  {
+    name:'Ghế bàn học phòng ngủ',
+    pos:new T.Vector3(chair2X,.78,chair2Z),
+    use(){ toggleSit2(); }
   }
 ];
 
@@ -676,27 +1023,31 @@ window.addEventListener('keydown',e=>{
 window.addEventListener('keyup',e=>{keys[normalizeKey(e)]=false;});
 window.addEventListener('blur',()=>{keys={};dragging=false;});
 
+// Vùng va chạm đồng bộ với vị trí và kích thước các đồ vật
 const blockers=[
-  [-1.65,.62,1.72,1.82],   // Giường
-  [1,-2.62,1.1,.78],       // Bàn học
-  [chairX,chairZ,.38,.38], // Ghế ngồi
-  [4,-.9,.8,.6],           // Đồ sát tường phải
-  [-.1,2.48,.35,.35],      // Quạt đứng
-  [16.95,.15,2.55,3.25],   // Giường phòng mới
-  [18.42,1.62,1.0,2.45],   // Bàn học mới
-  [17.25,1.69,.72,.82],    // Ghế mới
-  [12.05,3.78,1.95,1.08],  // Tủ pastel
-  [13.88,-.78,1.9,.85],    // Bàn trang điểm
-  [12.38,1.05,.72,1.32]    // Kệ sách
+  [-1.55,.62,2.30,2.55],     // Giường phòng 1
+  [-3.20,.75,.82,.62],       // Tủ đầu giường phòng 1
+  [1,-2.62,2.0,.78],         // Bàn học phòng 1
+  [chairX,chairZ,.58,.58],   // Ghế ngồi phòng 1
+  [4,-.9,.72,.48],           // Đồ sát tường phải
+  [-.1,2.48,.80,.80],        // Quạt đứng
+  [11.50,-.75,.52,1.18],     // Kệ sách phòng 2
+  [vanityX,-1.05,1.56,.96],  // Bàn trang điểm & ghế đôn
+  [15.10,-1.29,.60,.58],     // Tab đầu giường trái phòng 2
+  [16.95,.05,2.36,3.10],     // Giường phòng 2
+  [18.80,-1.29,.60,.58],     // Tab đầu giường phải phòng 2
+  [12.15,4.95,1.72,.86],     // Tủ pastel sát tường Nam
+  [desk2X,desk2Z,2.35,.88],  // Bàn học phòng 2 sát tường Nam
+  [chair2X,chair2Z,.64,.72]  // Ghế bàn học phòng 2
 ];
 
 function blocked(x,z){
   if(x < -4.15 || x > 19.20) return true;
   if(x <= 4.15 && (z < -3.15 || z > 3.15)) return true;
-  if(x > 4.15 && x < 4.62 && (doorAngle < .5 || z < 1.34 || z > 2.47)) return true;
-  if(x > 4.15 && x < 11.12 && (z < .43 || z > 3.37)) return true;
+  if(x > 4.15 && x < 4.65 && (doorAngle < .5 || z < 1.42 || z > 2.38)) return true;
+  if(x > 4.15 && x < 11.12 && (z < .45 || z > 3.35)) return true;
   if(x >= 11.12 && (z < -1.48 || z > 5.18)) return true;
-  if(x > 10.88 && x < 11.42 && (guestDoorAngle < .5 || z < 1.34 || z > 2.47)) return true;
+  if(x > 10.88 && x < 11.42 && (guestDoorAngle < .5 || z < 1.42 || z > 2.38)) return true;
   if(z < -2.05 && z > -3.35){
     if(Math.abs(x - (-3.50)) < .20) return true;
     if(Math.abs(x - (-2.00)) < .20) return true;
@@ -724,7 +1075,6 @@ function animate(){
       if(!blocked(camera.position.x,camera.position.z+dz)) camera.position.z+=dz;
     }
 
-    // Xử lý độ cao camera: Nhảy khi đang đứng, hạ thấp khi ngồi ghế hoặc nằm giường
     if(pose === 'stand'){
       if(!isGrounded || playerY > standEyeY){
         playerY += velY * dt;
@@ -737,16 +1087,20 @@ function animate(){
         }
       }
       camera.position.y = T.MathUtils.damp(camera.position.y, playerY, 18, dt);
-    } else if(pose === 'sit'){
+    } else if(pose === 'sit' || pose === 'sit2' || pose === 'vanity'){
       camera.position.y = T.MathUtils.damp(camera.position.y, 1.24, 10, dt);
     } else if(pose === 'bed'){
-      camera.position.y = T.MathUtils.damp(camera.position.y, 0.92, 8, dt);
+      camera.position.y = T.MathUtils.damp(camera.position.y, 0.98, 8, dt);
+    } else if(pose === 'bed2'){
+      camera.position.y = T.MathUtils.damp(camera.position.y, 1.02, 8, dt);
+    } else if(pose === 'under_bed_1' || pose === 'under_bed_2'){
+      camera.position.y = T.MathUtils.damp(camera.position.y, 0.22, 10, dt);
     }
 
     camera.rotation.order='YXZ';
     camera.rotation.y=yaw;
     camera.rotation.x=pitch;
-    camera.rotation.z = T.MathUtils.damp(camera.rotation.z, pose === 'bed' ? 0.06 : 0, 8, dt);
+    camera.rotation.z = T.MathUtils.damp(camera.rotation.z, (pose === 'bed' || pose === 'bed2') ? 0.06 : 0, 8, dt);
 
     let dir=new T.Vector3(0,0,-1).applyEuler(camera.rotation),score=99;
     current=null;
@@ -754,7 +1108,7 @@ function animate(){
     for(let t of targets){
       if(t.name==='Công tắc đèn trong tủ'&&wardrobeAngle<.8) continue;
       let v=t.pos.clone().sub(camera.position),d=v.length();
-      let maxDist = (t.name==='Cửa tủ quần áo' && inCloset) ? 2.5 : (t.name==='Giường ngủ' ? 2.75 : 2.35);
+      let maxDist = (t.name==='Cửa tủ quần áo' && inCloset) ? 2.5 : ((t.name==='Giường ngủ' || t.name==='Giường ngủ phòng ngủ') ? 2.75 : 2.35);
       let minDot = (t.name==='Cửa tủ quần áo' && inCloset) ? 0.35 : 0.60;
       if(d<maxDist && v.normalize().dot(dir)>minDot && d<score){current=t;score=d;}
     }
@@ -762,17 +1116,29 @@ function animate(){
     if(current){
       hint.style.display='block';
       if(current.name==='Ghế bàn học') hint.textContent = pose==='sit' ? '[ E / Space ]  Đứng dậy' : '[ E ]  Ngồi vào ghế';
+      else if(current.name==='Ghế bàn học phòng ngủ') hint.textContent = pose==='sit2' ? '[ E / Space ]  Đứng dậy' : '[ E ]  Ngồi vào ghế';
+      else if(current.name==='Bàn trang điểm') hint.textContent = pose==='vanity' ? '[ E / Space ]  Đứng dậy' : '[ E ]  Ngồi soi gương';
       else if(current.name==='Giường ngủ') hint.textContent = pose==='bed' ? '[ E / Space ]  Đứng dậy khỏi giường' : '[ E ]  Nằm lên giường';
+      else if(current.name==='Giường ngủ phòng ngủ') hint.textContent = pose==='bed2' ? '[ E / Space ]  Đứng dậy khỏi giường' : '[ E ]  Nằm lên giường';
+      else if(current.name==='Gầm giường' || current.name==='Gầm giường phòng ngủ') hint.textContent = (pose==='under_bed_1' || pose==='under_bed_2') ? '[ E / Space ]  Chui ra khỏi gầm giường' : '[ E ]  Chui xuống gầm giường trốn';
       else if(current.name==='Công tắc đèn') hint.textContent = '[ E ]  ' + (lightOn ? 'Tắt đèn phòng' : 'Bật đèn phòng');
+      else if(current.name==='Công tắc đèn ngủ trái') hint.textContent = '[ E ]  ' + (leftNightOn ? 'Tắt đèn ngủ trái' : 'Bật đèn ngủ trái');
+      else if(current.name==='Công tắc đèn ngủ phải') hint.textContent = '[ E ]  ' + (rightNightOn ? 'Tắt đèn ngủ phải' : 'Bật đèn ngủ phải');
       else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
       else if(current.name==='Cửa tủ quần áo') hint.textContent = '[ E ]  ' + (wardrobeTarget>.5 ? 'Đóng cửa tủ' : 'Mở cửa tủ');
       else hint.textContent='[ E ]  Tương tác · '+current.name;
-    } else if(pose === 'sit'){
+    } else if(pose === 'sit' || pose === 'sit2'){
       hint.style.display='block';
       hint.textContent='Đang ngồi ghế · Nhấn [ Space ] hoặc [ E ] để đứng dậy';
-    } else if(pose === 'bed'){
+    } else if(pose === 'vanity'){
+      hint.style.display='block';
+      hint.textContent='Đang ngồi soi gương · Nhấn [ Space ] hoặc [ E ] để đứng dậy';
+    } else if(pose === 'bed' || pose === 'bed2'){
       hint.style.display='block';
       hint.textContent='Đang nằm trên giường · Nhấn [ Space ] hoặc [ E ] để đứng dậy';
+    } else if(pose === 'under_bed_1' || pose === 'under_bed_2'){
+      hint.style.display='block';
+      hint.textContent='Đang trốn dưới gầm giường · Nhấn [ Space ] hoặc [ E ] để chui ra';
     } else if(inCloset){
       hint.style.display='block';
       hint.textContent='Đang ở trong tủ · Nhìn ra cửa tủ nhấn [ E ] để đóng/mở';
