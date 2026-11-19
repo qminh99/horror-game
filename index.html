@@ -5,6 +5,8 @@
 <div id="ui"><div class="panel"><div class="eyebrow">MỤC TIÊU</div><div class="title">Trước khi rời phòng</div><div class="task" id="tl">Kiểm tra laptop</div><div class="task" id="tf">Bật quạt đứng</div><div class="task" id="td">Mở cửa ra vào</div></div><div id="cross"></div><div id="hint"></div><div id="computerHint"></div><div id="caption"></div><div class="shade"></div></div>
 
 <script type="module">
+import { createBathroom } from './bathroom.js';
+
 let started = false, locked = false, dragging = false, canvasEl = null;
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('start');
@@ -52,7 +54,7 @@ try {
   throw err;
 }
 
-const scene=new T.Scene();scene.background=new T.Color(0x10191b);scene.fog=new T.FogExp2(0x111a1b,.028);
+const scene=new T.Scene();scene.background=new T.Color(0x070c0d);scene.fog=new T.FogExp2(0x070c0d,.028);
 const camera=new T.PerspectiveCamera(74,innerWidth/innerHeight,.06,80);
 camera.position.set(0,1.63,1.25);
 
@@ -140,7 +142,8 @@ function makeCurtainMesh(w, h){
 
 // Cửa sổ, song sắt, bệ cửa, thanh treo và 2 tấm rèm
 box(wood,-.1,2.05,-3.43,3.25,1.9,.13);
-box(M(0x85b7c5,.16,.1,{transparent:true,opacity:.45}),-.1,2.05,-3.34,2.95,1.62,.025);
+const windowGlassMat = M(0x85b7c5,.16,.1,{transparent:true,opacity:.45});
+box(windowGlassMat,-.1,2.05,-3.34,2.95,1.62,.025);
 for(let x=-1.3;x<1.5;x+=.65)box(metal,x,2.05,-3.28,.032,1.6,.032);
 for(let y=1.65;y<2.6;y+=.42)box(metal,-.1,y,-3.28,2.95,.032,.032);
 box(white,-.1,1.16,-3.28,3.15,.09,.12);
@@ -333,7 +336,7 @@ box(wood2,chairX,.56,chairZ,.58,.08,.58);
 for(let dx of [-.24,.24])for(let dz of [-.24,.24])box(wood,chairX+dx,.28,chairZ+dz,.07,.54,.07);
 box(wood2,chairX,.98,chairZ+.26,.58,.78,.08);
 
-// Giường ngủ phòng 1 (có khoảng trống gầm giường để chui xuống trốn) & Tủ đầu giường
+// Giường ngủ phòng 1 & Tủ đầu giường
 for(let lx of [-2.60,-0.50])for(let lz of [-0.56,1.80])box(wood,lx,.17,lz,.12,.34,.12);
 box(M(0x263638),-1.55,.39,.62,2.30,.10,2.55);
 box(bed,-1.55,.53,.62,2.22,.18,2.47);
@@ -357,9 +360,14 @@ let rotor=new T.Group();cage.add(rotor);
 for(let i=0;i<3;i++){let s=new T.Shape();s.moveTo(0,0);s.bezierCurveTo(.14,.1,.18,.44,.07,.48);s.bezierCurveTo(-.04,.42,-.07,.12,0,0);let b=new T.Mesh(new T.ShapeGeometry(s),new T.MeshStandardMaterial({color:0xd9ded8,roughness:.4,side:T.DoubleSide}));b.rotation.z=i*Math.PI*2/3;b.position.z=.02;b.castShadow=true;rotor.add(b)}
 ball(white,0,0,.06,.09,rotor);
 
-// Điều hòa phòng 1
+// Điều hòa phòng 1 + Đèn đỏ mờ rùng rợn khi tắt đèn
 box(white,2.75,2.78,-3.27,1.45,.38,.38);
 box(M(0x3d5657),2.75,2.62,-3.09,.96,.025,.03);
+const redLedMat = M(0x3a0808, .25, 0, {emissive: 0xff1111, emissiveIntensity: 0});
+box(redLedMat, 3.32, 2.64, -3.078, .038, .022, .012);
+const creepyRedLight = new T.PointLight(0xd91212, 0, 8.5, 2);
+creepyRedLight.position.set(2.95, 2.52, -2.75);
+scene.add(creepyRedLight);
 
 // Đèn treo (Pendant Lamp) ở chính giữa phòng
 const pendantGroup = new T.Group();
@@ -415,10 +423,13 @@ sp.position.set(4.432, 1.98, scrollZ);
 sp.rotation.y=-Math.PI/2;
 scene.add(sp);
 
-// Tầng hai: hành lang
+// Tầng hai: hành lang (tường Bắc chừa cửa vào nhà vệ sinh tại x = 8.00)
 const hallFloor=M(0x777871,.78),hallWall=M(0xaaa99f,.92),hallTrim=M(0xd4cbbb,.65),roomWall=M(0xe8dfd4,.9),softWood=M(0xa87859,.55),linen=M(0xe5dfd5,.92),duvet=M(0x71949a,.92),lavender=M(0xc6b3d8,.8),rose=M(0xe9b8bb,.75);
 box(hallFloor,7.8,-.125,1.90,6.65,.25,3.06);
-box(hallWall,7.8,1.56,.34,6.65,3.12,.15);
+box(hallWall,6.00,1.56,.34,3.05,3.12,.15);   // Tường Bắc hành lang bên trái cửa WC
+box(hallWall,9.80,1.56,.34,2.65,3.12,.15);   // Tường Bắc hành lang bên phải cửa WC
+box(hallWall,8.00,2.76,.34,.96,.72,.15);     // Phần tường trên khung cửa WC
+box(hallTrim,8.00,2.42,.34,1.04,.07,.18);    // Khung trên cửa WC
 box(hallWall,7.8,1.56,3.46,6.65,3.12,.15);
 box(hallWall,7.8,3.22,1.90,6.65,.16,3.12);
 box(hallTrim,7.8,3.08,.43,6.6,.10,.10);
@@ -474,7 +485,7 @@ const bedroomRocker=box(M(0xf4f7f5,.2),-.04,0,0,.025,.095,.06,bedroomSwitch);bed
 box(M(0x52eb85,.2,0,{emissive:0x2ecc71,emissiveIntensity:1}),-.045,-.075,0,.012,.014,.03,bedroomSwitch);
 let bedroomLightOn=true;
 
-// Giường ngủ phòng 2 (nâng trên 4 chân đế tạo khoảng trống gầm giường để chui xuống trốn)
+// Giường ngủ phòng 2
 for(let lx of [15.86,18.04])for(let lz of [-1.40,1.50])box(wood,lx,.18,lz,.12,.36,.12);
 box(wood2,16.95,.42,.05,2.36,.12,3.10);
 box(linen,16.95,.57,.05,2.30,.18,3.04);
@@ -485,7 +496,7 @@ box(M(0xf1e8df,.9),17.45,.72,-1.12,.82,.18,.52);
 box(lavender,16.95,1.02,-1.50,2.42,.88,.18);
 box(rose,17.02,.83,1.32,1.08,.12,.60);
 
-// Hai tab đầu giường, hai đèn ngủ và 2 công tắc tắt/bật đèn ngủ hai bên tường Bắc
+// Hai tab đầu giường & đèn ngủ
 const leftNightShadeMat = M(0xe7d7bd,.45,0,{emissive:0xffc873,emissiveIntensity:.85});
 const rightNightShadeMat = M(0xe7d7bd,.45,0,{emissive:0xffc873,emissiveIntensity:.85});
 const leftNightLight = new T.PointLight(0xffd29c, 5.2, 2.8, 2);
@@ -494,7 +505,6 @@ scene.add(leftNightLight);
 const rightNightLight = new T.PointLight(0xffd29c, 5.2, 2.8, 2);
 rightNightLight.position.set(18.80, 1.52, -1.29);
 scene.add(rightNightLight);
-
 let leftNightOn = true, rightNightOn = true;
 
 for(let side of [
@@ -522,7 +532,7 @@ function makeWallSwitchZ(x, y, z){
 const leftNightSwitch = makeWallSwitchZ(15.52, 1.18, -1.585);
 const rightNightSwitch = makeWallSwitchZ(18.35, 1.18, -1.585);
 
-// Tủ pastel dễ thương (sát tường Nam z = 4.95)
+// Tủ pastel dễ thương
 box(M(0xf0e7e0,.75),12.15,1.275,4.95,1.72,2.55,.86);
 box(M(0xecd9e3,.75),12.15,1.38,4.48,1.60,2.28,.08);
 box(M(0xf7edf0,.72),11.76,1.38,4.42,.75,2.20,.06);
@@ -535,24 +545,22 @@ for(let y of [.67,1.11,1.55,1.99]){
   box(M(0xd4c8bb),12.54,y,4.385,.40,.025,.018);
 }
 
-// Bàn học để laptop và ghế nằm ở dưới chỗ treo 2 bức tranh (tường Nam z = 4.94)
+// Bàn học laptop gaming phòng 2
 const desk2X = 16.40, desk2Z = 4.94;
 box(softWood,desk2X,1.02,desk2Z,2.35,.14,.88);
 for(let x of [desk2X-1.0,desk2X+1.0])for(let z of [desk2Z-.32,desk2Z+.32])box(wood2,x,.51,z,.09,1,.09);
-// Laptop gaming đặt trên bàn học, màn hình hướng về phía ghế (hướng Bắc -z)
 box(dark,desk2X,1.11,desk2Z+.06,.56,.04,.44);
 box(dark,desk2X,1.37,desk2Z+.28,.68,.48,.035);
 const gamingScreenFace=box(M(0x38d8c9,.28,.3,{emissive:0x147f91,emissiveIntensity:.12}),desk2X,1.37,desk2Z+.26,.62,.42,.012);
 box(M(0x48c8aa,.3,.25,{emissive:0x1a735f,emissiveIntensity:.32}),desk2X,1.132,desk2Z+.03,.50,.008,.38);
 for(let ix=0;ix<8;ix++)for(let iz=0;iz<4;iz++)box(M(0x8fc7c0,.6,.2),desk2X-.21+ix*.06,1.138,desk2Z-.10+iz*.065,.038,.008,.032);
-// Ghế bàn học đặt phía trước bàn học (hướng mặt về bàn/tranh)
 const chair2X = desk2X, chair2Z = 4.10;
 box(dark,chair2X,.58,chair2Z,.64,.10,.64);
 for(let dx of [-.23,.23])for(let dz of [-.23,.23])box(wood2,chair2X+dx,.29,chair2Z+dz,.06,.54,.06);
 box(dark,chair2X,1.0,chair2Z-.34,.60,.82,.08);
 box(rose,chair2X,.86,chair2Z-.28,.42,.10,.13);
 
-// Bàn trang điểm (sát tường Bắc z = -1.28), gương soi và ghế đôn ngồi soi gương
+// Bàn trang điểm & gương soi phòng 2
 const vanityX = 13.45, vanityZ = -1.28, vanityStoolZ = -0.68;
 box(softWood,vanityX,.92,vanityZ,1.56,.13,.62);
 for(let x of [vanityX-.66,vanityX+.66])box(wood2,x,.48,vanityZ,.10,.86,.12);
@@ -571,7 +579,7 @@ for(let i=0;i<5;i++){
   ball(M(0xfff0cb,.22,0,{emissive:0xffd88a,emissiveIntensity:.75}),vanityX + Math.cos(ang)*.44, 1.68 + Math.sin(ang)*.44, -1.50, .03);
 }
 
-// Quạt trần 9 cánh
+// Quạt trần 9 cánh, điều hòa & kệ sách phòng 2
 const nineFan=new T.Group();nineFan.position.set(14.35,3.08,2.25);scene.add(nineFan);
 cyl(metal,0,0,0,.16,.16,.12,20,nineFan);
 cyl(white,0,-.15,0,.025,.025,.30,12,nineFan);
@@ -580,7 +588,6 @@ cyl(M(0xbac6c3,.28,.4),0,0,0,.13,.13,.10,18,nineRotor);
 for(let i=0;i<9;i++){let a=i*Math.PI*2/9;let blade=box(M(i%2?0xc9d4cf:0xd9ded8,.45,.15),Math.cos(a)*.74,0,Math.sin(a)*.74,.92,.045,.22,nineRotor);blade.rotation.y=-a;blade.rotation.z=.025}
 let bedroomFanOn=true;
 
-// Điều hòa phòng 2 (tường Đông x = 19.34, z = 0.85) & Kệ sách mở (góc Bắc-Tây)
 box(white,19.34,2.72,.85,.40,.54,1.50);
 box(M(0x657477),19.13,2.50,.85,.03,.03,1.16);
 
@@ -598,7 +605,6 @@ for(let idx=0;idx<4;idx++){
   }
 }
 
-// Hàm tạo tranh anime (hỗ trợ treo trên tường Nam hoặc tường Đông)
 function animePoster(x,y,z,rotY,hair,accent,title){
   let pc=document.createElement('canvas');pc.width=320;pc.height=440;let p=pc.getContext('2d');
   let gr=p.createLinearGradient(0,0,320,440);gr.addColorStop(0,'#172a42');gr.addColorStop(.55,accent);gr.addColorStop(1,'#f3c9bf');
@@ -620,9 +626,7 @@ function animePoster(x,y,z,rotY,hair,accent,title){
   pm.position.set(0,0,.032);
   grp.add(pm);
 }
-// 1 tranh treo ở bên phải điều hòa trên tường Đông (x = 19.51, z = 2.55)
 animePoster(19.51, 2.02, 2.55, -Math.PI/2, '#201c36', '#497a91', 'MOONLIGHT');
-// 2 tranh treo trên tường Nam bên trên bàn học (x = 15.80 và x = 17.00, z = 5.37)
 animePoster(15.80, 2.05, 5.37, Math.PI, '#b9594c', '#b57890', 'STARBOUND');
 animePoster(17.00, 2.05, 5.37, Math.PI, '#315968', '#799d8e', 'AFTER SCHOOL');
 
@@ -649,10 +653,51 @@ let doorTarget=0,doorAngle=0,fanOn=false,wardrobeTarget=0,wardrobeAngle=0;
 let guestDoorTarget=0,guestDoorAngle=0,gamingLaptopOn=false;
 let lightOn = true;
 
-// Trạng thái tư thế: 'stand' | 'sit' | 'sit2' | 'vanity' | 'bed' | 'bed2' | 'under_bed_1' | 'under_bed_2'
 let pose = 'stand';
 const standEyeY = 1.63;
 let playerY = standEyeY, velY = 0, isGrounded = true;
+
+let laptopFocus = false;
+const savedLaptopReturn = {
+  pos: new T.Vector3(0.68, standEyeY, -1.65),
+  yaw: 0,
+  pitch: 0,
+  fov: 74,
+  pose: 'stand'
+};
+
+function enterLaptopFocus() {
+  if (!laptopFocus) {
+    savedLaptopReturn.pos.copy(camera.position);
+    savedLaptopReturn.yaw = yaw;
+    savedLaptopReturn.pitch = pitch;
+    savedLaptopReturn.fov = camera.fov;
+    savedLaptopReturn.pose = pose;
+  }
+  laptopFocus = true;
+  yaw = 0.14;
+  pitch = -0.025;
+}
+
+function exitLaptopFocus(silent = false) {
+  if (!laptopFocus) return;
+  laptopFocus = false;
+  pose = savedLaptopReturn.pose;
+  camera.position.copy(savedLaptopReturn.pos);
+  yaw = savedLaptopReturn.yaw;
+  pitch = savedLaptopReturn.pitch;
+  camera.fov = savedLaptopReturn.fov;
+  camera.updateProjectionMatrix();
+  if (!silent) say('Bạn đã rời góc nhìn màn hình laptop.');
+}
+
+function toggleClosetLight() {
+  closetLightOn = !closetLightOn;
+  closetLight.intensity = closetLightOn ? 12 : 0;
+  closetBulbMat.emissiveIntensity = closetLightOn ? 1 : .02;
+  closetSwitchRocker.rotation.z = closetLightOn ? .20 : -.20;
+  say(closetLightOn ? 'Đèn trong tủ đã bật.' : 'Đèn trong tủ đã tắt.');
+}
 
 function isInsideWardrobe(x = camera.position.x, z = camera.position.z) {
   return x > -3.45 && x < -2.05 && z < -2.12 && z > -3.22;
@@ -669,6 +714,10 @@ function say(t){
 let yaw=0,pitch=0,keys={},current=null;
 
 function standUp() {
+  if (laptopFocus) {
+    exitLaptopFocus();
+    return;
+  }
   if (pose === 'sit') {
     pose = 'stand';
     camera.position.set(chairX, standEyeY, -1.02);
@@ -806,9 +855,14 @@ const targets=[
       if(!screenPower){
         screenPower=true;screenView='desktop';renderComputer();
         if(!done.l){done.l=true;document.querySelector('#tl').classList.add('done')}
-        say('Laptop đã mở. Nhấn phím 1, 2 hoặc 3 để xem ứng dụng.');
+        enterLaptopFocus();
+        say('Laptop đã mở. Nhấn 1, 2, 3 xem ứng dụng · Space rời màn hình.');
+      }else if(!laptopFocus){
+        enterLaptopFocus();
+        say('Đang xem màn hình laptop. Nhấn Space để rời màn hình · E để tắt.');
       }else{
         screenPower=false;renderComputer();
+        exitLaptopFocus(true);
         say('Laptop đã tắt.');
       }
     }
@@ -834,10 +888,15 @@ const targets=[
     use(){
       lightOn = !lightOn;
       switchRocker.rotation.z = lightOn ? 0.22 : -0.22;
-      bulbMat.emissiveIntensity = lightOn ? 1.4 : 0.03;
-      hemiLight.intensity = lightOn ? 1.15 : 0.28;
-      sun.intensity = lightOn ? 1.6 : 0.35;
-      say(lightOn ? 'Đã bật đèn treo giữa phòng.' : 'Đã tắt đèn phòng. Căn phòng chìm vào bóng tối.');
+      bulbMat.emissiveIntensity = lightOn ? 1.4 : 0;
+      hemiLight.intensity = lightOn ? 1.15 : 0.03;
+      sun.intensity = lightOn ? 1.6 : 0;
+      winlight.intensity = lightOn ? 20 : 0;
+      windowGlassMat.color.setHex(lightOn ? 0x85b7c5 : 0x0b1214);
+      windowGlassMat.opacity = lightOn ? 0.45 : 0.65;
+      redLedMat.emissiveIntensity = lightOn ? 0 : 1.6;
+      creepyRedLight.intensity = lightOn ? 0 : 2.1;
+      say(lightOn ? 'Đã bật đèn treo giữa phòng.' : 'Đã tắt đèn phòng. Chỉ còn ánh đèn đỏ mờ nhạt trong bóng tối...');
     }
   },
   {
@@ -865,20 +924,14 @@ const targets=[
       if (wardrobeTarget > .5) {
         say('Cửa tủ quần áo đã mở. Bạn có thể đi bộ (WASD) vào trong tủ để trốn.');
       } else {
-        say(isInsideWardrobe() ? 'Bạn đã đóng cửa tủ từ bên trong.' : 'Cửa tủ quần áo đã đóng.');
+        say(isInsideWardrobe() ? 'Bạn đã đóng cửa tủ từ bên trong. Nhấn F hoặc nhìn công tắc để tắt đèn tủ.' : 'Cửa tủ quần áo đã đóng.');
       }
     }
   },
   {
     name:'Công tắc đèn trong tủ',
     pos:new T.Vector3(-2.04,1.36,-2.43),
-    use(){
-      closetLightOn=!closetLightOn;
-      closetLight.intensity=closetLightOn?12:0;
-      closetBulbMat.emissiveIntensity=closetLightOn?1:.02;
-      closetSwitchRocker.rotation.z=closetLightOn ? .20 : -.20;
-      say(closetLightOn?'Đèn trong tủ đã bật.':'Đèn trong tủ đã tắt.');
-    }
+    use(){ toggleClosetLight(); }
   },
   {
     name:'Cửa ra vào',
@@ -966,16 +1019,37 @@ const targets=[
   }
 ];
 
+const blockers=[
+  [-1.55,.62,2.30,2.55],
+  [-3.20,.75,.82,.62],
+  [1,-2.62,2.0,.78],
+  [chairX,chairZ,.58,.58],
+  [4,-.9,.72,.48],
+  [-.1,2.48,.80,.80],
+  [11.50,-.75,.52,1.18],
+  [vanityX,-1.05,1.56,.96],
+  [15.10,-1.29,.60,.58],
+  [16.95,.05,2.36,3.10],
+  [18.80,-1.29,.60,.58],
+  [12.15,4.95,1.72,.86],
+  [desk2X,desk2Z,2.35,.88],
+  [chair2X,chair2Z,.64,.72]
+];
+
+// Khởi tạo khu nhà vệ sinh từ file bathroom.js
+const bathroom = createBathroom({ T, scene, renderer, camera, targets, blockers, say, standEyeY });
+
 const hint=document.querySelector('#hint'),computerHint=document.querySelector('#computerHint');
 
 function normalizeKey(e){
-  if(['KeyW','KeyA','KeyS','KeyD','KeyE','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Digit1','Digit2','Digit3','Space'].includes(e.code)) return e.code;
+  if(['KeyW','KeyA','KeyS','KeyD','KeyE','KeyF','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Digit1','Digit2','Digit3','Space'].includes(e.code)) return e.code;
   const k=(e.key||'').toLowerCase();
   if(k==='w'||k==='ư') return 'KeyW';
   if(k==='a') return 'KeyA';
   if(k==='s') return 'KeyS';
   if(k==='d'||k==='đ') return 'KeyD';
   if(k==='e'||k==='ê') return 'KeyE';
+  if(k==='f') return 'KeyF';
   return e.code;
 }
 
@@ -992,6 +1066,13 @@ document.addEventListener('mousemove',e=>{
   if(locked||dragging){
     yaw-=e.movementX*.0022;
     pitch=T.MathUtils.clamp(pitch-e.movementY*.0019,-1.22,1.22);
+    if(laptopFocus){
+      yaw=T.MathUtils.clamp(yaw,-0.08,0.36);
+      pitch=T.MathUtils.clamp(pitch,-0.22,0.22);
+    } else if(bathroom.isMirrorFocus()){
+      yaw=T.MathUtils.clamp(yaw,-0.32,0.32);
+      pitch=T.MathUtils.clamp(pitch,-0.25,0.25);
+    }
   }
 });
 
@@ -1000,6 +1081,15 @@ window.addEventListener('keydown',e=>{
   keys[code]=true;
   if(code==='Space' && started){
     e.preventDefault();
+    if(bathroom.isMirrorFocus()){
+      const ret = bathroom.exitMirrorFocus();
+      if(ret){ yaw = ret.yaw; pitch = ret.pitch; }
+      return;
+    }
+    if(laptopFocus){
+      exitLaptopFocus();
+      return;
+    }
     if(pose !== 'stand'){
       standUp();
     } else if(isGrounded){
@@ -1008,8 +1098,25 @@ window.addEventListener('keydown',e=>{
     }
     return;
   }
+  if(code==='KeyF' && started && isInsideWardrobe()){
+    e.preventDefault();
+    toggleClosetLight();
+    return;
+  }
   if(code==='KeyE'&&started){
-    if(current) current.use();
+    if(bathroom.isMirrorFocus()){
+      const ret = bathroom.exitMirrorFocus();
+      if(ret){ yaw = ret.yaw; pitch = ret.pitch; }
+    } else if(laptopFocus){
+      screenPower=false;
+      renderComputer();
+      exitLaptopFocus(true);
+      say('Laptop đã tắt.');
+    } else if(current) {
+      if(current.name === 'Gương soi') bathroom.syncAnglesFrom(yaw, pitch);
+      const res = current.use();
+      if(res && res.setAngles){ yaw = res.setAngles.yaw; pitch = res.setAngles.pitch; }
+    }
     else if(pose !== 'stand') standUp();
   }
   if(started&&screenPower&&['Digit1','Digit2','Digit3'].includes(code)){
@@ -1023,29 +1130,18 @@ window.addEventListener('keydown',e=>{
 window.addEventListener('keyup',e=>{keys[normalizeKey(e)]=false;});
 window.addEventListener('blur',()=>{keys={};dragging=false;});
 
-// Vùng va chạm đồng bộ với vị trí và kích thước các đồ vật
-const blockers=[
-  [-1.55,.62,2.30,2.55],     // Giường phòng 1
-  [-3.20,.75,.82,.62],       // Tủ đầu giường phòng 1
-  [1,-2.62,2.0,.78],         // Bàn học phòng 1
-  [chairX,chairZ,.58,.58],   // Ghế ngồi phòng 1
-  [4,-.9,.72,.48],           // Đồ sát tường phải
-  [-.1,2.48,.80,.80],        // Quạt đứng
-  [11.50,-.75,.52,1.18],     // Kệ sách phòng 2
-  [vanityX,-1.05,1.56,.96],  // Bàn trang điểm & ghế đôn
-  [15.10,-1.29,.60,.58],     // Tab đầu giường trái phòng 2
-  [16.95,.05,2.36,3.10],     // Giường phòng 2
-  [18.80,-1.29,.60,.58],     // Tab đầu giường phải phòng 2
-  [12.15,4.95,1.72,.86],     // Tủ pastel sát tường Nam
-  [desk2X,desk2Z,2.35,.88],  // Bàn học phòng 2 sát tường Nam
-  [chair2X,chair2Z,.64,.72]  // Ghế bàn học phòng 2
-];
-
 function blocked(x,z){
   if(x < -4.15 || x > 19.20) return true;
   if(x <= 4.15 && (z < -3.15 || z > 3.15)) return true;
   if(x > 4.15 && x < 4.65 && (doorAngle < .5 || z < 1.42 || z > 2.38)) return true;
-  if(x > 4.15 && x < 11.12 && (z < .45 || z > 3.35)) return true;
+
+  // Khu vực nhà vệ sinh nối từ tường Bắc hành lang (x từ 7.20 -> 11.04, z <= 0.45)
+  if(x > 7.20 && x < 11.04 && z < 0.45){
+    if(bathroom.isBlocked(x, z)) return true;
+  } else if(x > 4.15 && x < 11.12 && (z < .45 || z > 3.35)){
+    return true;
+  }
+
   if(x >= 11.12 && (z < -1.48 || z > 5.18)) return true;
   if(x > 10.88 && x < 11.42 && (guestDoorAngle < .5 || z < 1.42 || z > 2.38)) return true;
   if(z < -2.05 && z > -3.35){
@@ -1067,7 +1163,7 @@ function animate(){
   if(started){
     let f=((keys.KeyW||keys.ArrowUp)?1:0)-((keys.KeyS||keys.ArrowDown)?1:0),
         s=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0);
-    if(pose === 'stand' && (f||s)){
+    if(!laptopFocus && !bathroom.isMirrorFocus() && pose === 'stand' && (f||s)){
       let l=Math.hypot(f,s);f/=l;s/=l;
       let dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*2.65*dt,
           dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*2.65*dt;
@@ -1075,7 +1171,13 @@ function animate(){
       if(!blocked(camera.position.x,camera.position.z+dz)) camera.position.z+=dz;
     }
 
-    if(pose === 'stand'){
+    if(laptopFocus){
+      camera.position.x = T.MathUtils.damp(camera.position.x, 0.77, 10, dt);
+      camera.position.y = T.MathUtils.damp(camera.position.y, 1.39, 10, dt);
+      camera.position.z = T.MathUtils.damp(camera.position.z, -2.14, 10, dt);
+      camera.fov = T.MathUtils.damp(camera.fov, 68, 10, dt);
+      camera.updateProjectionMatrix();
+    } else if(!bathroom.isMirrorFocus() && pose === 'stand'){
       if(!isGrounded || playerY > standEyeY){
         playerY += velY * dt;
         velY -= 11.5 * dt;
@@ -1100,20 +1202,28 @@ function animate(){
     camera.rotation.order='YXZ';
     camera.rotation.y=yaw;
     camera.rotation.x=pitch;
-    camera.rotation.z = T.MathUtils.damp(camera.rotation.z, (pose === 'bed' || pose === 'bed2') ? 0.06 : 0, 8, dt);
+    camera.rotation.z = T.MathUtils.damp(camera.rotation.z, (!laptopFocus && !bathroom.isMirrorFocus() && (pose === 'bed' || pose === 'bed2')) ? 0.06 : 0, 8, dt);
 
     let dir=new T.Vector3(0,0,-1).applyEuler(camera.rotation),score=99;
     current=null;
     const inCloset = isInsideWardrobe();
-    for(let t of targets){
-      if(t.name==='Công tắc đèn trong tủ'&&wardrobeAngle<.8) continue;
-      let v=t.pos.clone().sub(camera.position),d=v.length();
-      let maxDist = (t.name==='Cửa tủ quần áo' && inCloset) ? 2.5 : ((t.name==='Giường ngủ' || t.name==='Giường ngủ phòng ngủ') ? 2.75 : 2.35);
-      let minDot = (t.name==='Cửa tủ quần áo' && inCloset) ? 0.35 : 0.60;
-      if(d<maxDist && v.normalize().dot(dir)>minDot && d<score){current=t;score=d;}
+    if(!laptopFocus && !bathroom.isMirrorFocus()){
+      for(let t of targets){
+        if(t.name==='Công tắc đèn trong tủ' && wardrobeAngle<.8 && !inCloset) continue;
+        let v=t.pos.clone().sub(camera.position),d=v.length();
+        let maxDist = (t.name==='Cửa tủ quần áo' && inCloset) ? 2.5 : ((t.name==='Giường ngủ' || t.name==='Giường ngủ phòng ngủ') ? 2.75 : 2.35);
+        let minDot = ((t.name==='Cửa tủ quần áo' || t.name==='Công tắc đèn trong tủ') && inCloset) ? 0.35 : 0.60;
+        if(d<maxDist && v.normalize().dot(dir)>minDot && d<score){current=t;score=d;}
+      }
     }
 
-    if(current){
+    if(bathroom.isMirrorFocus()){
+      hint.style.display='block';
+      hint.textContent='Đang soi gương · Di chuột nhìn quanh · [ Space / E ] Rời gương';
+    } else if(laptopFocus){
+      hint.style.display='block';
+      hint.textContent='Đang dùng Laptop · [ 1 / 2 / 3 ] Ứng dụng · [ Space ] Rời màn hình · [ E ] Tắt máy';
+    } else if(current){
       hint.style.display='block';
       if(current.name==='Ghế bàn học') hint.textContent = pose==='sit' ? '[ E / Space ]  Đứng dậy' : '[ E ]  Ngồi vào ghế';
       else if(current.name==='Ghế bàn học phòng ngủ') hint.textContent = pose==='sit2' ? '[ E / Space ]  Đứng dậy' : '[ E ]  Ngồi vào ghế';
@@ -1124,8 +1234,10 @@ function animate(){
       else if(current.name==='Công tắc đèn') hint.textContent = '[ E ]  ' + (lightOn ? 'Tắt đèn phòng' : 'Bật đèn phòng');
       else if(current.name==='Công tắc đèn ngủ trái') hint.textContent = '[ E ]  ' + (leftNightOn ? 'Tắt đèn ngủ trái' : 'Bật đèn ngủ trái');
       else if(current.name==='Công tắc đèn ngủ phải') hint.textContent = '[ E ]  ' + (rightNightOn ? 'Tắt đèn ngủ phải' : 'Bật đèn ngủ phải');
-      else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
+      else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E / F ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
       else if(current.name==='Cửa tủ quần áo') hint.textContent = '[ E ]  ' + (wardrobeTarget>.5 ? 'Đóng cửa tủ' : 'Mở cửa tủ');
+      else if(current.name==='Laptop') hint.textContent = '[ E ]  ' + (screenPower ? 'Xem màn hình Laptop' : 'Bật & xem Laptop');
+      else if(current.name==='Gương soi') hint.textContent = '[ E ]  Soi gương';
       else hint.textContent='[ E ]  Tương tác · '+current.name;
     } else if(pose === 'sit' || pose === 'sit2'){
       hint.style.display='block';
@@ -1141,13 +1253,13 @@ function animate(){
       hint.textContent='Đang trốn dưới gầm giường · Nhấn [ Space ] hoặc [ E ] để chui ra';
     } else if(inCloset){
       hint.style.display='block';
-      hint.textContent='Đang ở trong tủ · Nhìn ra cửa tủ nhấn [ E ] để đóng/mở';
+      hint.textContent=`Đang ở trong tủ · [ F ] ${closetLightOn ? 'Tắt' : 'Bật'} đèn tủ · Nhìn cửa tủ nhấn [ E ] để đóng/mở`;
     } else {
       hint.style.display='none';
     }
 
     computerHint.style.display=screenPower?'block':'none';
-    computerHint.textContent=screenPower?'Laptop: 1 Message · 2 Phonecall · 3 News · E tắt laptop':'';
+    computerHint.textContent=screenPower?(laptopFocus?'Laptop: 1 Message · 2 Phonecall · 3 News · Space rời màn hình · E tắt laptop':'Laptop đang bật: Nhìn laptop nhấn E để phóng to · 1/2/3 đổi tab'):'';
   }
 
   if(fanOn) rotor.rotation.z-=dt*8;
@@ -1160,6 +1272,8 @@ function animate(){
   wleft.rotation.y=-wardrobeAngle;
   wright.rotation.y=wardrobeAngle;
 
+  closetLight.distance = wardrobeAngle < 0.25 ? 1.45 : 3.2;
+
   curtainState=T.MathUtils.damp(curtainState,curtainOpen?0:1,4,dt);
   curtainLeft.position.x = T.MathUtils.lerp(-1.22, -0.66, curtainState);
   curtainRight.position.x = T.MathUtils.lerp(1.02, 0.46, curtainState);
@@ -1168,9 +1282,13 @@ function animate(){
 
   if(lightOn){
     lamp.intensity = 35 + Math.sin(performance.now()*.002)*1.2 + (Math.random()<.002?-10:0);
+    creepyRedLight.intensity = 0;
   } else {
     lamp.intensity = 0;
+    creepyRedLight.intensity = 2.1 + Math.sin(performance.now()*.0025)*0.22;
   }
+
+  bathroom.update(dt, started, yaw, pitch);
   renderer.render(scene,camera);
 }
 animate();
