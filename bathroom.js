@@ -60,11 +60,12 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   bathRocker.rotation.x = 0.22;
 
   // Cửa nhà vệ sinh (bản lề bên phải x = 8.46, mở vào trong)
+  const doorWidth = 0.92, doorDepth = 0.08, playerRadius = 0.22;
   let bathDoorTarget = 0, bathDoorAngle = 0;
   const bathDoor = new T.Group();
   bathDoor.position.set(8.46, 0, 0.34);
   bathGroup.add(bathDoor);
-  box(M(0x7a5c48, 0.5), -0.46, 1.20, 0, 0.92, 2.40, 0.07, bathDoor);
+  box(M(0x7a5c48, 0.5), -doorWidth / 2, 1.20, 0, doorWidth, 2.40, 0.07, bathDoor);
   box(M(0x9fc5ce, 0.25, 0.1, { transparent: true, opacity: 0.55 }), -0.46, 1.88, 0, 0.54, 0.52, 0.08, bathDoor);
   const handleKnob1 = new T.Mesh(new T.SphereGeometry(0.042, 12, 10), chrome);
   handleKnob1.position.set(-0.80, 1.02, 0.06);
@@ -234,8 +235,8 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
       name: 'Cửa nhà vệ sinh',
       pos: new T.Vector3(8.00, 1.20, 0.34),
       use() {
-        bathDoorTarget = bathDoorTarget < 0.5 ? 1.35 : 0;
-        say(bathDoorTarget > 0.5 ? 'Đã mở cửa nhà vệ sinh.' : 'Đã đóng cửa nhà vệ sinh.');
+        bathDoorTarget = bathDoorTarget === 0 ? -1.35 : 0;
+        say(bathDoorTarget < 0 ? 'Đang mở cửa nhà vệ sinh.' : 'Đang đóng cửa nhà vệ sinh.');
       }
     },
     {
@@ -300,12 +301,24 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
     [10.88, -2.58, 0.22, 0.22]        // Ống cống góc tường
   );
 
+  function blocksDoor(x, z, angle = bathDoorAngle) {
+    const dx = x - bathDoor.position.x, dz = z - bathDoor.position.z;
+    const reach = doorWidth + playerRadius;
+    if (Math.abs(dx) > reach || Math.abs(dz) > reach) return false;
+
+    // Đưa tâm người chơi vào hệ tọa độ của cánh cửa đang xoay.
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const localX = cos * dx - sin * dz;
+    const localZ = sin * dx + cos * dz;
+    const nearestX = T.MathUtils.clamp(localX, -doorWidth, 0);
+    const nearestZ = T.MathUtils.clamp(localZ, -doorDepth / 2, doorDepth / 2);
+    return (localX - nearestX) ** 2 + (localZ - nearestZ) ** 2 < playerRadius ** 2;
+  }
+
   function isBlocked(x, z) {
     // Vùng ngưỡng cửa giữa hành lang và nhà vệ sinh (z từ 0.12 -> 0.46)
     if (z >= 0.12 && z <= 0.46) {
-      if (x < 7.66 || x > 8.34) return true; // Tường hai bên khung cửa
-      if (bathDoorAngle < 0.55) return true; // Cửa đang đóng
-      return false;
+      return x < 7.66 || x > 8.34; // Tường hai bên khung cửa
     }
     // Tường bao trong nhà vệ sinh
     if (x < 7.42 || x > 10.82 || z < -2.42) return true;
@@ -313,7 +326,10 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   }
 
   function update(dt, started, yaw, pitch) {
-    bathDoorAngle = T.MathUtils.damp(bathDoorAngle, bathDoorTarget, 4.5, dt);
+    const nextDoorAngle = T.MathUtils.damp(bathDoorAngle, bathDoorTarget, 4.5, dt);
+    if (!blocksDoor(camera.position.x, camera.position.z, nextDoorAngle)) {
+      bathDoorAngle = nextDoorAngle;
+    }
     bathDoor.rotation.y = bathDoorAngle;
 
     // Hiệu ứng nước chảy lavabo, vòi sen và xả bồn cầu
@@ -361,6 +377,7 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
 
   return {
     isBlocked,
+    blocksDoor,
     update,
     isMirrorFocus: () => mirrorFocus,
     exitMirrorFocus,
