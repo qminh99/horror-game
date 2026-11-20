@@ -1058,7 +1058,7 @@ let inBasement = false;
 function moveThroughHatch(entering) {
   current = null;
   inBasement = entering;
-  basement.beam.visible = false;
+  basement.flashlight.visible = false;
   playerY = standEyeY;
   velY = 0;
   isGrounded = true;
@@ -1126,7 +1126,7 @@ window.addEventListener('keydown',e=>{
     return;
   }
   keys[code]=true;
-  if(code==='KeyT' && inBasement) basement.beam.visible = !basement.beam.visible;
+  if(code==='KeyT' && inBasement) basement.flashlight.visible = !basement.flashlight.visible;
   if(code==='Space' && started){
     e.preventDefault();
     if(bathroom.isMirrorFocus()){
@@ -1319,7 +1319,7 @@ function animate(){
     } else if(pose === 'bed' || pose === 'bed2'){
       hint.style.display='block';
       hint.textContent='Đang nằm trên giường · Nhấn [ Space ] hoặc [ E ] để đứng dậy';
-    } else if(inBasement && !basement.beam.visible){
+    } else if(inBasement && !basement.flashlight.visible){
       hint.style.display='block';
       hint.textContent='[ T ]  Bật đèn pin';
     } else if(inCloset){
@@ -1360,8 +1360,7 @@ function animate(){
   }
 
   if(inBasement) {
-    basement.beam.position.copy(camera.position);
-    basement.beam.target.position.copy(camera.position).add(lookDirection);
+    basement.aimFlashlight(camera,lookDirection);
     renderer.render(basement.scene,camera);
     return;
   }

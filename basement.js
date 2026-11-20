@@ -56,6 +56,19 @@ export function createBasement(T, houseScene) {
     return new T.MeshStandardMaterial({map, roughness:.94});
   }
   const cement = concrete(), tagged = concrete(true);
+  // Separate floor finish: broad damp patches break up grazing light.
+  const slab = concrete();
+  const floorCanvas = slab.map.image;
+  const floorPaint = floorCanvas.getContext('2d');
+  for (let i = 0; i < 95; i++) {
+    const x = random()*512, y = random()*256, radius = 4+random()*30;
+    const stain = floorPaint.createRadialGradient(x,y,0,x,y,radius);
+    stain.addColorStop(0, i%4 ? '#202c27a6' : '#6548388c');
+    stain.addColorStop(1, '#292b2600');
+    floorPaint.fillStyle = stain;
+    floorPaint.fillRect(x-radius,y-radius,2*radius,2*radius);
+  }
+  slab.roughness = .68;
   const oxidized = material(0x483c31), steel = material(0x585951);
   const ivory = material(0xb4ab8c), wood = material(0x494033);
   const obstacles = [];
@@ -64,7 +77,7 @@ export function createBasement(T, houseScene) {
     obstacles.push([x,z,w/2+.22,d/2+.22]);
   }
   const height = 3.9;
-  box(room,cement,36.5,-.10,5,13,.2,10);
+  box(room,slab,36.5,-.10,5,13,.2,10);
   box(room,cement,36.5,height+.1,5,13,.2,10);
   for (const z of [0,10]) box(room,cement,36.5,height/2,z,13,height,.18);
   for (const x of [30,43]) box(room,cement,x,height/2,5,.18,height,10);
@@ -87,7 +100,7 @@ export function createBasement(T, houseScene) {
 
   const chair = new T.Group();
   chair.position.set(36.9,0,5.2);
-  chair.rotation.y = -.34;
+  chair.rotation.y = .57;
   room.add(chair);
   box(chair,ivory,0,.47,0,.49,.12,.46);
   box(chair,ivory,0,.82,-.2,.46,.66,.10).rotation.x=-.08;
@@ -111,11 +124,39 @@ export function createBasement(T, houseScene) {
   for (const z of [-.33,.33]) box(hatch,steel,0,.054,z,1.04,.025,.055);
   box(hatch,steel,0,.081,.29,.24,.05,.06);
 
-  const beam = new T.SpotLight(0xfff2d7,55,19,.49,.52,1.5);
-  beam.visible=false;
-  scene.add(beam,beam.target);
+  room.traverse(object => {
+    if (object.isMesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+    }
+  });
+  const flashlight = new T.Group();
+  flashlight.visible = false;
+  const beam = new T.SpotLight(0xfff5e7, 70, 22, 1.04, 1, 1.65);
+  beam.castShadow = true;
+  beam.shadow.mapSize.set(512,512);
+  beam.shadow.camera.near = .12;
+  beam.shadow.normalBias = .015;
+  beam.shadow.bias = -.00025;
+  beam.shadow.autoUpdate = false;
+  // Weak, short-range spill approximates light reflected back from the room.
+  const spill = new T.PointLight(0xcad8dc, 5, 12, 1.45);
+  flashlight.add(beam, beam.target, spill);
+  scene.add(flashlight);
+  const origin = new T.Vector3(), aim = new T.Vector3();
   return {
-    scene, beam,
+    scene, flashlight,
+    aimFlashlight(camera, direction) {
+      if (!flashlight.visible) return;
+      origin.set(.21,-.26,-.1).applyQuaternion(camera.quaternion).add(camera.position);
+      aim.copy(camera.position).addScaledVector(direction, 5);
+      if (!beam.position.equals(origin) || !beam.target.position.equals(aim)) {
+        beam.position.copy(origin);
+        beam.target.position.copy(aim);
+        spill.position.copy(origin);
+        beam.shadow.needsUpdate = true;
+      }
+    },
     floor(x,z) {
       if(x<stairLeft || z<start) return base;
       return base+rise*Math.min(count,1+Math.floor((z-start)/tread));
