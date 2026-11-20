@@ -44,11 +44,13 @@ async function loadThree() {
 async function init() {
 const [
   { createBathroom },
+  { createBasement },
   { createGroundFloor, isOutside, lowerFloorHeight, stairOpening },
   { createRenderBudget, renderPixelRatio },
   T
 ] = await Promise.all([
   import('./bathroom.js'),
+  import('./basement.js'),
   import('./ground-floor.js'),
   import('./render-budget.js'),
   loadThree()
@@ -1051,6 +1053,34 @@ const blockers=[
 const bathroom = createBathroom({ T, scene, renderer, camera, targets, blockers, say, standEyeY });
 const groundFloor = createGroundFloor({ T, scene, camera, targets, say, cyl, ball });
 
+const basement = createBasement(T, scene);
+let inBasement = false;
+function moveThroughHatch(entering) {
+  current = null;
+  inBasement = entering;
+  basement.beam.visible = false;
+  playerY = standEyeY;
+  velY = 0;
+  isGrounded = true;
+  if (entering) {
+    camera.position.set(42.05, basement.floor(42.05,9.38)+standEyeY, 9.38);
+    yaw = .18;
+    pitch = -.20;
+    say('Tầng hầm · Nhấn T để bật đèn pin.');
+  } else {
+    camera.position.set(9.25, lowerFloorHeight(9.25,11.12)+standEyeY, 11.12);
+    yaw = Math.PI/2;
+    pitch = 0;
+  }
+}
+targets.push({name:'Mở nắp xuống tầng hầm', pos:new T.Vector3(9.35,-3.24,10.24),
+  use:()=>moveThroughHatch(true)});
+const basementTargets = [{name:'Mở nắp trở lên tầng một', pos:new T.Vector3(42.18,-4.18,9.8),
+  use:()=>moveThroughHatch(false)}];
+function walkingFloor(x,z) {
+  return inBasement ? basement.floor(x,z) : lowerFloorHeight(x,z) ?? 0;
+}
+
 const hint=document.querySelector('#hint'),computerHint=document.querySelector('#computerHint');
 
 function normalizeKey(e){
@@ -1091,11 +1121,12 @@ document.addEventListener('mousemove',e=>{
 window.addEventListener('keydown',e=>{
   if (!started) return;
   const code=normalizeKey(e);
-  if (e.repeat && ['KeyE','KeyF','Space','Digit1','Digit2','Digit3'].includes(code)) {
+  if (e.repeat && ['KeyT','KeyE','KeyF','Space','Digit1','Digit2','Digit3'].includes(code)) {
     e.preventDefault();
     return;
   }
   keys[code]=true;
+  if(code==='KeyT' && inBasement) basement.beam.visible = !basement.beam.visible;
   if(code==='Space' && started){
     e.preventDefault();
     if(bathroom.isMirrorFocus()){
@@ -1150,6 +1181,7 @@ window.addEventListener('keyup',e=>{keys[normalizeKey(e)]=false;});
 window.addEventListener('blur',()=>{keys={};dragging=false;});
 
 function blocked(x,z){
+  if(inBasement) return basement.blocks(x,z,camera.position.x);
   if(lowerFloorHeight(x,z) !== null) return groundFloor.blocksFurniture(x,z);
   if(x < -4.15 || x > 19.20) return true;
   if(x <= 4.15 && (z < -3.15 || z > 3.15)) return true;
@@ -1186,7 +1218,7 @@ function animate(){
   const dt = Math.min(frameSeconds, .066);
   if (renderBudget.sample(frameSeconds, started && !document.hidden)) applyRenderScale();
   if(started){
-    const previousFloor = lowerFloorHeight(camera.position.x,camera.position.z) ?? 0;
+    const previousFloor = walkingFloor(camera.position.x,camera.position.z);
     let f=((keys.KeyW||keys.ArrowUp)?1:0)-((keys.KeyS||keys.ArrowDown)?1:0),
         s=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0);
     if(!laptopFocus && !bathroom.isMirrorFocus() && pose === 'stand' && (f||s)){
@@ -1211,16 +1243,17 @@ function animate(){
       if(!isGrounded || playerY > standEyeY){
         playerY += velY * dt;
         velY -= 11.5 * dt;
-        if(playerY >= 2.92){ playerY = 2.92; velY = Math.min(0, velY); }
+        const eyeLimit = inBasement ? Math.min(2.92, -3.25 - walkingFloor(camera.position.x,camera.position.z)) : 2.92;
+        if(playerY >= eyeLimit){ playerY = eyeLimit; velY = Math.min(0, velY); }
         if(playerY <= standEyeY){
           playerY = standEyeY;
           velY = 0;
           isGrounded = true;
         }
       }
-      const floor = lowerFloorHeight(camera.position.x,camera.position.z) ?? 0;
+      const floor = walkingFloor(camera.position.x,camera.position.z);
       camera.position.y = floor + T.MathUtils.damp(camera.position.y - previousFloor, playerY, 18, dt);
-      const level = isOutside(camera.position.z) ? 'Sân trước' : floor === 0 ? 'Tầng hai' : 'Tầng một';
+      const level = inBasement ? 'Tầng hầm' : isOutside(camera.position.z) ? 'Sân trước' : floor === 0 ? 'Tầng hai' : 'Tầng một';
       if (floorLabel.textContent !== level) floorLabel.textContent = level;
     } else if(pose === 'sit' || pose === 'sit2' || pose === 'vanity'){
       camera.position.y = T.MathUtils.damp(camera.position.y, 1.24, 10, dt);
@@ -1242,7 +1275,7 @@ function animate(){
     current=null;
     const inCloset = isInsideWardrobe();
     if(!laptopFocus && !bathroom.isMirrorFocus()){
-      for(let t of targets){
+      for(let t of (inBasement ? basementTargets : targets)){
         if(t.available && !t.available()) continue;
         if(t.name==='Công tắc đèn trong tủ' && wardrobeAngle<.8 && !inCloset) continue;
         const v=targetOffset.copy(t.pos).sub(camera.position),d=v.length();
@@ -1286,6 +1319,9 @@ function animate(){
     } else if(pose === 'bed' || pose === 'bed2'){
       hint.style.display='block';
       hint.textContent='Đang nằm trên giường · Nhấn [ Space ] hoặc [ E ] để đứng dậy';
+    } else if(inBasement && !basement.beam.visible){
+      hint.style.display='block';
+      hint.textContent='[ T ]  Bật đèn pin';
     } else if(inCloset){
       hint.style.display='block';
       hint.textContent=`Đang ở trong tủ · [ F ] ${closetLightOn ? 'Tắt' : 'Bật'} đèn tủ · Nhìn cửa tủ nhấn [ E ] để đóng/mở`;
@@ -1323,6 +1359,12 @@ function animate(){
     creepyRedLight.intensity = 2.1 + Math.sin(performance.now()*.0025)*0.22;
   }
 
+  if(inBasement) {
+    basement.beam.position.copy(camera.position);
+    basement.beam.target.position.copy(camera.position).add(lookDirection);
+    renderer.render(basement.scene,camera);
+    return;
+  }
   bathroom.update(dt, started, yaw, pitch);
   groundFloor.update(dt);
   renderer.render(scene,camera);
