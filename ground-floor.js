@@ -285,7 +285,7 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   solid(fridgeX, fridgeZ, .96, .97);
   targets.push({ name: 'Tủ lạnh cũ', pos: new T.Vector3(fridgeX, stair.floor + 1.23, fridgeZ + .55),
     available: () => camera.position.x < kitchenEdge,
-    use() { say('Có tiếng máy chạy, dù dây điện đã rút.'); } });
+    use() { say('Lớp men trên cửa tủ đã bong ở các góc.'); } });
 
   const counterX = 3.66, counterZ = 7.94;
   const topMat = plaster(0x625247, { roughness: .58 });
