@@ -44,7 +44,7 @@ async function loadThree() {
 async function init() {
 const [
   { createBathroom },
-  { createGroundFloor, lowerFloorHeight, stairOpening },
+  { createGroundFloor, isOutside, lowerFloorHeight, stairOpening },
   { createRenderBudget, renderPixelRatio },
   T
 ] = await Promise.all([
@@ -1220,7 +1220,7 @@ function animate(){
       }
       const floor = lowerFloorHeight(camera.position.x,camera.position.z) ?? 0;
       camera.position.y = floor + T.MathUtils.damp(camera.position.y - previousFloor, playerY, 18, dt);
-      const level = floor === 0 ? 'Tầng hai' : 'Tầng một';
+      const level = isOutside(camera.position.z) ? 'Sân trước' : floor === 0 ? 'Tầng hai' : 'Tầng một';
       if (floorLabel.textContent !== level) floorLabel.textContent = level;
     } else if(pose === 'sit' || pose === 'sit2' || pose === 'vanity'){
       camera.position.y = T.MathUtils.damp(camera.position.y, 1.24, 10, dt);
@@ -1324,7 +1324,7 @@ function animate(){
   }
 
   bathroom.update(dt, started, yaw, pitch);
-  groundFloor.update();
+  groundFloor.update(dt);
   renderer.render(scene,camera);
 }
 

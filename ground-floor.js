@@ -1,9 +1,17 @@
+import { createFrontYard } from './front-yard.js';
+
 export const stairOpening = { left: 7.46, right: 9.14 };
 
 const stair = { start: 3.43, top: 4.36, bottom: 9.56, floor: -3.35, steps: 19 };
 const house = { west: .42, kitchenWall: 6.35, livingWall: 10.12, east: 17.35, back: 7.34, front: 12.56 };
 const doorway = { start: 10.57, end: 11.94 };
 const radius = .22;
+const entrance = { left: 7.58, right: 9.02, height: 2.36 };
+const yard = { left: -.45, right: 18.25, end: 25.8 };
+
+export function isOutside(z) {
+  return z > house.front + radius;
+}
 
 export function lowerFloorHeight(x, z) {
   const insideStairs = x >= stairOpening.left + radius && x <= stairOpening.right - radius;
@@ -12,8 +20,15 @@ export function lowerFloorHeight(x, z) {
     return stair.floor * Math.max(0, Math.min(1, slope));
   }
 
-  if (x < house.west + radius || x > house.east - radius ||
-      z < house.back + radius || z > house.front - radius) return null;
+  if (z > house.front - radius) {
+    if (isOutside(z)) {
+      return x >= yard.left + radius && x <= yard.right - radius && z <= yard.end - radius ? stair.floor : null;
+    }
+    const clearance = radius + .03;
+    return x >= entrance.left + clearance && x <= entrance.right - clearance ? stair.floor : null;
+  }
+
+  if (x < house.west + radius || x > house.east - radius || z < house.back + radius) return null;
   if (x > house.kitchenWall - radius && x < house.livingWall + radius && z < stair.bottom + radius) return null;
 
   const nearPartition = Math.abs(x - house.kitchenWall) < radius || Math.abs(x - house.livingWall) < radius;
@@ -221,7 +236,9 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   wall(livingWall, livingEdge, east, back - .08, back + .08);
   wall(kitchenWall, west, kitchenEdge, front - .08, front + .08);
   wall(livingWall, livingEdge, east, front - .08, front + .08);
-  wall(passageWall, kitchenEdge, livingEdge, front - .08, front + .08);
+  wall(passageWall, kitchenEdge, entrance.left, front - .08, front + .08);
+  wall(passageWall, entrance.right, livingEdge, front - .08, front + .08);
+  span(passageWall, entrance.left, entrance.right, front - .08, front + .08, (height + entrance.height) / 2, height - entrance.height);
   wall(passageWall, kitchenEdge, stairOpening.left, stair.bottom - .08, stair.bottom + .08);
   wall(passageWall, stairOpening.right, livingEdge, stair.bottom - .08, stair.bottom + .08);
   for (const [x, material] of [[kitchenEdge, kitchenWall], [livingEdge, livingWall]]) {
@@ -235,7 +252,54 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   cylinder(brass, 8.28, 2.79, 10.85, .16, .12, .14);
   sphere(warm, 8.28, 2.67, 10.85, .115);
   sign('BẾP', 7, 1.93, 12.44);
-  sign('PHÒNG KHÁCH', 9.46, 1.93, 12.44);
+  sign('PHÒNG KHÁCH', 9.61, 1.93, 12.44);
+  sign('RA SÂN', center, 2.61, 12.44);
+
+  const frontDoor = new T.Group();
+  const leafWidth = entrance.right - entrance.left;
+  frontDoor.position.set(entrance.left, 0, front);
+  rooms.add(frontDoor);
+  for (const x of [entrance.left, entrance.right]) boxAt(darkWood, x, entrance.height / 2, front, .095, entrance.height, .26);
+  boxAt(darkWood, center, entrance.height, front, leafWidth + .10, .11, .27);
+  boxAt(wood, leafWidth / 2, 1.16, 0, leafWidth - .085, 2.26, .09, frontDoor);
+  for (const [y, panelHeight] of [[.61, .73], [1.64, .82]]) {
+    boxAt(darkWood, leafWidth / 2, y, 0, leafWidth - .25, panelHeight, .12, frontDoor);
+    boxAt(wood, leafWidth / 2, y, 0, leafWidth - .34, panelHeight - .09, .135, frontDoor);
+  }
+  for (const side of [-1, 1]) {
+    boxAt(iron, leafWidth - .17, 1.06, side * .057, .083, .18, .035, frontDoor);
+    sphere(brass, leafWidth - .17, 1.06, side * .107, .044, frontDoor);
+  }
+  let frontDoorAngle = 0, frontDoorTarget = 0;
+  targets.push({
+    name: 'Cửa chính',
+    pos: new T.Vector3(center, stair.floor + 1.26, front),
+    use() {
+      if (frontDoorTarget !== 0) {
+        frontDoorTarget = 0;
+      } else {
+        // Mở về phía đối diện người chơi và giữ hướng nếu cửa đang khép dở.
+        const direction = Math.abs(frontDoorAngle) > .025 ? Math.sign(frontDoorAngle) :
+          camera.position.z > front ? 1 : -1;
+        frontDoorTarget = direction * 1.48;
+      }
+      say(frontDoorTarget ? 'Đang mở cửa chính.' : 'Đang đóng cửa chính.');
+    }
+  });
+
+  function blocksFrontDoor(x, z, angle = frontDoorAngle) {
+    const dx = x - entrance.left, dz = z - front;
+    if (Math.abs(dx) > leafWidth + radius || Math.abs(dz) > leafWidth + radius) return false;
+    const sin = Math.sin(angle), cos = Math.cos(angle);
+    const localX = cos * dx - sin * dz, localZ = sin * dx + cos * dz;
+    const closestX = T.MathUtils.clamp(localX, 0, leafWidth);
+    const closestZ = T.MathUtils.clamp(localZ, -.068, .068);
+    return Math.hypot(localX - closestX, localZ - closestZ) < radius;
+  }
+
+  const outdoors = createFrontYard({
+    T, scene, floor: stair.floor, boxAt, texture, grit, plaster, light, house, yard, entrance, center, radius
+  });
 
   // Bếp cũ, cửa sổ hổ phách và dãy bếp men cạnh chậu rửa.
   const rear = back + .14;
@@ -566,7 +630,7 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
     const relative = new T.Matrix4();
     const batches = new Map();
     group.traverse(mesh => {
-      if (mesh.geometry !== boxGeometry || mesh === rocker) return;
+      if (mesh.geometry !== boxGeometry || mesh === rocker || mesh.parent === frontDoor) return;
       if (!batches.has(mesh.material)) batches.set(mesh.material, []);
       batches.get(mesh.material).push(mesh);
     });
@@ -586,16 +650,26 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
 
   batchStaticBoxes(stairs);
   batchStaticBoxes(rooms);
+  batchStaticBoxes(outdoors.group);
 
   function blocksFurniture(x, z) {
+    if (blocksFrontDoor(x, z)) return true;
+    if (isOutside(z)) return outdoors.blocked(x, z);
     return furniture.some(item =>
       Math.abs(x - item.x) < item.width / 2 + radius && Math.abs(z - item.z) < item.depth / 2 + radius
     );
   }
 
-  function update() {
+  function update(dt = 0) {
     rooms.visible = camera.position.z > 6.25;
-    if (rooms.visible) candle.intensity = 2.7 + Math.sin(performance.now() * .018) * .26;
+    const now = performance.now();
+    outdoors.update(camera.position, now);
+    if (!rooms.visible) return;
+    const nextAngle = T.MathUtils.damp(frontDoorAngle, frontDoorTarget, 5, dt);
+    if (!blocksFrontDoor(camera.position.x, camera.position.z, nextAngle)) {
+      frontDoor.rotation.y = frontDoorAngle = nextAngle;
+    }
+    candle.intensity = 2.7 + Math.sin(now * .018) * .26;
   }
 
   update();

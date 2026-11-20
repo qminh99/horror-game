@@ -22,4 +22,6 @@ Bạn bắt đầu trong phòng ngủ tầng hai. Nhìn vào cửa và nhấn **
 
 Từ hành lang tầng hai, đi theo biển **TẦNG 1**. Khi bước xuống hết cầu thang, rẽ phải vào bếp hoặc rẽ trái vào phòng khách. Dùng **E** để bật/tắt đèn bếp hoặc TV. Đi lại lên cầu thang để trở về tầng hai.
 
+Đi thẳng từ chân cầu thang theo biển **RA SÂN**. Nhấn **E** để mở hoặc đóng cửa chính từ cả hai phía.
+
 Bản thử dựng bằng hình học Three.js từ ảnh căn phòng. Kích thước và phần khuất được ước lượng.
