@@ -1,11 +1,29 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Căn phòng lúc chạng vạng</title><style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#091112;color:#e8e5dc;font:14px Segoe UI,Arial}canvas{display:block}#ui{position:fixed;inset:0;pointer-events:none;z-index:2}.panel{position:absolute;top:20px;left:22px;padding:14px 17px;background:#081112d9;border:1px solid #c7d8ca38;border-left:2px solid #b7d4bf;min-width:245px}.eyebrow{font-size:10px;letter-spacing:.2em;color:#aec7b6;text-transform:uppercase}.title{font:21px Georgia;margin:7px 0 10px}#hint,#caption{position:absolute;left:50%;transform:translateX(-50%);background:#050a0be8;padding:10px 14px;border:1px solid #dce8db55;display:none;text-align:center}#hint{bottom:7%}#computerHint{position:absolute;bottom:2.4%;left:50%;transform:translateX(-50%);padding:7px 12px;background:#071012cc;border:1px solid #c9e0d24a;font-size:11px;color:#cfe0d3;display:none;white-space:nowrap}#caption{bottom:13%;max-width:80vw}#cross{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#dce5da;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 7px #fff}.shade{position:absolute;inset:0;background:radial-gradient(ellipse,transparent 30%,#0009);pointer-events:none}#overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse,#162324c9,#030708f2 80%);z-index:10;pointer-events:auto}#card{max-width:550px;margin:20px;padding:30px;background:#0c1415;border:1px solid #ceddce40}h1{font:34px Georgia;margin:9px 0 12px}p{line-height:1.65;color:#bbc5bd}button{border:0;background:#c4d7c7;color:#101814;padding:12px 18px;font-weight:bold;letter-spacing:.08em;cursor:pointer;pointer-events:auto}button:hover{background:#d8eadb}.small{font-size:11px;color:#84918b}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#091112;color:#e8e5dc;font:14px Segoe UI,Arial}canvas{display:block}#ui{position:fixed;inset:0;pointer-events:none;z-index:2}.panel{position:absolute;top:20px;left:22px;padding:14px 17px;background:#081112d9;border:1px solid #c7d8ca38;border-left:2px solid #b7d4bf;min-width:245px}.eyebrow{font-size:10px;letter-spacing:.2em;color:#aec7b6;text-transform:uppercase}.title{font:21px Georgia;margin:7px 0 10px}#hint,#caption{position:absolute;left:50%;transform:translateX(-50%);background:#050a0be8;padding:10px 14px;border:1px solid #dce8db55;display:none;text-align:center}#hint{bottom:7%}#caption{bottom:13%;max-width:80vw}#cross{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#dce5da;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 7px #fff}.shade{position:absolute;inset:0;background:radial-gradient(ellipse,transparent 30%,#0009);pointer-events:none}#overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse,#162324c9,#030708f2 80%);z-index:10;pointer-events:auto}#card{max-width:550px;margin:20px;padding:30px;background:#0c1415;border:1px solid #ceddce40}h1{font:34px Georgia;margin:9px 0 12px}p{line-height:1.65;color:#bbc5bd}button{border:0;background:#c4d7c7;color:#101814;padding:12px 18px;font-weight:bold;letter-spacing:.08em;cursor:pointer;pointer-events:auto}button:hover{background:#d8eadb}.small{font-size:11px;color:#84918b}
 button:disabled{opacity:.48;cursor:wait}
+#desktop:not([hidden]){position:fixed;inset:0;z-index:12;display:flex;flex-direction:column;background:radial-gradient(ellipse at 75% 18%,#32575b,#142b30 54%,#0a181d);color:#eff2e8;overflow:auto}
+#desktop header,#desktop footer{padding:16px clamp(18px,5vw,80px);background:#0d1e23;display:flex;align-items:center;justify-content:space-between}
+#desktop strong,#desktop small{letter-spacing:.16em}
+#desktop main{margin:auto;width:min(860px,92%);padding:32px 0}
+#apps{display:flex;flex-wrap:wrap;gap:8px}
+#desktop button{border-radius:5px;letter-spacing:0}
+#apps button{background:#183239;color:#dee8de;border:1px solid #799790}
+#apps button[aria-pressed=true]{background:#c8ddca;color:#16302b}
+#desktop article{margin-top:16px;padding:clamp(24px,5vw,60px);background:#11272ded;border:1px solid #5b7779;border-radius:8px;min-height:200px}
+#desktop article p{white-space:pre-line;font-size:17px}
+#desktop footer,#desktop small{color:#b5c9c0;font-size:12px}
 </style></head><body>
 <div id="overlay"><div id="card"><div class="eyebrow">KINH DỊ · BẢN THỬ</div><h1>Căn phòng lúc chạng vạng</h1><p><b>W A S D</b> di chuyển · <b>Space</b> nhảy / đứng dậy · <b>Chuột</b> nhìn quanh · <b>E</b> tương tác · <b>Esc</b> thả chuột</p><button id="start" type="button" disabled>VÀO PHÒNG</button><p class="small" id="statusText" role="status">Đang tải game. Hãy mở qua trình chạy và kết nối Internet để tải Three.js.</p></div></div>
-<div id="ui"><div class="panel"><div class="eyebrow">KHÁM PHÁ NGÔI NHÀ</div><div class="title" id="floorLabel">Tầng hai</div></div><div id="cross"></div><div id="hint"></div><div id="computerHint"></div><div id="caption" role="status"></div><div class="shade"></div></div>
+<div id="ui"><div class="panel"><div class="eyebrow">KHÁM PHÁ NGÔI NHÀ</div><div class="title" id="floorLabel">Tầng hai</div></div><div id="cross"></div><div id="hint"></div><div id="caption" role="status"></div><div class="shade"></div></div>
 
+<section id="desktop" hidden aria-label="Laptop">
+  <header><strong>ROOMBOOK OS</strong><button id="leaveLaptop">Rời laptop</button></header>
+  <main><nav id="apps" aria-label="Ứng dụng"></nav>
+  <article><small id="appMeta"></small><h1 id="appName"></h1><p id="appBody"></p></article></main>
+  <footer>1–4 mở ứng dụng · Space rời laptop · E tắt máy</footer>
+</section>
 <script type="module">
+import { cellar } from './cellar-layout.js';
 let started = false, locked = false, dragging = false;
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('start');
@@ -297,7 +315,7 @@ function renderComputer(){
     if(screenView==='desktop'){
       c.fillStyle='#ffffff';c.font='bold 23px Segoe UI, Arial';
       c.fillText('Chào buổi tối, Minh',24,64);
-      let apps=[['M','Message','#5f8db5'],['☎','Phonecall','#54a87b'],['N','News','#c98f49']];
+      let apps=[['M','Tin nhắn','#5f8db5'],['☎','Cuộc gọi','#54a87b'],['N','Báo mới','#c98f49'],['H','Học phần','#876fa8']];
       apps.forEach((a,i)=>{
         let x=62+i*112;
         c.fillStyle=a[2];c.beginPath();c.arc(x+25,139,30,0,Math.PI*2);c.fill();
@@ -309,21 +327,16 @@ function renderComputer(){
       });
       c.fillStyle='#071114cc';c.fillRect(18,274,310,34);
       c.fillStyle='#e5f2e8';c.font='bold 14px Segoe UI, Arial';
-      c.fillText('Nhấn phím 1 · 2 · 3 để mở ứng dụng',28,296);
+      c.fillText('Nhấn phím 1 · 2 · 3 · 4 để mở ứng dụng',28,296);
     }else{
       c.fillStyle='#eae8dc';c.fillRect(24,46,552,268);
       c.strokeStyle='#182c2e';c.lineWidth=2;c.strokeRect(24,46,552,268);
       c.fillStyle='#182c2e';c.fillRect(24,46,552,38);
       c.fillStyle='#ffffff';c.font='bold 18px Segoe UI, Arial';
-      c.fillText(screenView + '   (Nhấn 1 · 2 · 3 để chuyển tab)',40,71);
-      const emptyState = {
-        Message: 'Hộp thư trống',
-        Phonecall: 'Không có cuộc gọi',
-        News: 'Chưa có bản tin'
-      };
+      c.fillText(screenView + '   (Nhấn 1 · 2 · 3 · 4 để chuyển tab)',40,71);
       c.textAlign='center';
       c.fillStyle='#132022';c.font='bold 22px Segoe UI, Arial';
-      c.fillText(emptyState[screenView],300,195);
+      c.fillText(laptopApps.find(app=>app[0]===screenView)?.[2] ?? '',300,195);
       c.textAlign='left';
     }
   }
@@ -665,46 +678,60 @@ winlight.position.set(0, 2.2, -3.1);
 scene.add(winlight);
 
 let doorTarget=0,doorAngle=0,fanOn=false,wardrobeTarget=0,wardrobeAngle=0;
-let guestDoorTarget=0,guestDoorAngle=0,gamingLaptopOn=false;
+let guestDoorTarget=0,guestDoorAngle=0;
 let lightOn = true;
 
 let pose = 'stand';
 const standEyeY = 1.63;
 let playerY = standEyeY, velY = 0, isGrounded = true;
 
+const laptopApps = [
+  ['Tin nhắn','HỘP THƯ','Mẹ · 20:46','Mẹ về muộn. Con nhớ khóa cửa sân nhé.'],
+  ['Cuộc gọi','NHẬT KÝ','Cuộc gọi nhỡ','Số lạ · 21:53\nMẹ · 19:12'],
+  ['Báo mới','BẢN TIN ĐỊA PHƯƠNG','Sương xuống sớm trên đường đèo','Từ chập tối, các hộ dân trên núi đã thấy sương phủ kín khúc đường dẫn xuống thành phố.'],
+  ['Học phần','LỊCH HỌC','Học phần đang theo học','Nhiếp ảnh cơ bản · Thứ Hai, 08:00\nBài tập tuần này · Chụp phong cảnh ban đêm.']
+];
 let laptopFocus = false;
-const savedLaptopReturn = {
-  pos: new T.Vector3(0.68, standEyeY, -1.65),
-  yaw: 0,
-  pitch: 0,
-  fov: 74,
-  pose: 'stand'
-};
-
-function enterLaptopFocus() {
-  if (!laptopFocus) {
-    savedLaptopReturn.pos.copy(camera.position);
-    savedLaptopReturn.yaw = yaw;
-    savedLaptopReturn.pitch = pitch;
-    savedLaptopReturn.fov = camera.fov;
-    savedLaptopReturn.pose = pose;
-  }
-  laptopFocus = true;
-  yaw = 0.14;
-  pitch = -0.025;
+let activeLaptop = null;
+const desktop = document.querySelector('#desktop');
+const appNav = document.querySelector('#apps');
+function showApp(index) {
+  const app = laptopApps[index];
+  screenView = app ? app[0] : 'desktop';
+  document.querySelector('#appMeta').textContent = app?.[1] ?? 'ROOMBOOK';
+  document.querySelector('#appName').textContent = app?.[2] ?? 'Chào buổi tối, Minh';
+  document.querySelector('#appBody').textContent = app?.[3] ?? 'Chọn một ứng dụng để mở.';
+  Array.from(appNav.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
+  renderComputer();
 }
-
-function exitLaptopFocus(silent = false) {
-  if (!laptopFocus) return;
-  laptopFocus = false;
-  pose = savedLaptopReturn.pose;
-  camera.position.copy(savedLaptopReturn.pos);
-  yaw = savedLaptopReturn.yaw;
-  pitch = savedLaptopReturn.pitch;
-  camera.fov = savedLaptopReturn.fov;
-  camera.updateProjectionMatrix();
-  if (!silent) say('Bạn đã rời góc nhìn màn hình laptop.');
+laptopApps.forEach(([name],i)=>{
+  const button = document.createElement('button');
+  button.textContent = name;
+  button.onclick = ()=>showApp(i);
+  appNav.appendChild(button);
+});
+function enterLaptopFocus(device) {
+  activeLaptop = device;
+  if(device==='main') screenPower=true;
+  else gamingScreenFace.material.emissiveIntensity=.9;
+  laptopFocus=true;
+  keys={}; dragging=false;
+  desktop.hidden=false;
+  if(document.pointerLockElement) document.exitPointerLock();
+  showApp(-1);
+  appNav.firstElementChild.focus();
 }
+function exitLaptopFocus(powerOff=false) {
+  if(!laptopFocus) return;
+  if(powerOff && activeLaptop==='main') screenPower=false;
+  if(powerOff && activeLaptop==='gaming') gamingScreenFace.material.emissiveIntensity=.12;
+  renderComputer();
+  desktop.hidden=true;
+  laptopFocus=false;
+  keys={};
+  safePointerLock(renderer.domElement);
+}
+document.querySelector('#leaveLaptop').onclick=()=>exitLaptopFocus();
 
 function toggleClosetLight() {
   closetLightOn = !closetLightOn;
@@ -869,20 +896,7 @@ const targets=[
   {
     name:'Laptop',
     pos:new T.Vector3(.65,1.37,-2.76),
-    use(){
-      if(!screenPower){
-        screenPower=true;screenView='desktop';renderComputer();
-        enterLaptopFocus();
-        say('Laptop đã mở. Nhấn 1, 2, 3 xem ứng dụng · Space rời màn hình.');
-      }else if(!laptopFocus){
-        enterLaptopFocus();
-        say('Đang xem màn hình laptop. Nhấn Space để rời màn hình · E để tắt.');
-      }else{
-        screenPower=false;renderComputer();
-        exitLaptopFocus(true);
-        say('Laptop đã tắt.');
-      }
-    }
+    use(){ enterLaptopFocus('main'); }
   },
   {
     name:'Ghế bàn học',
@@ -1023,7 +1037,7 @@ const targets=[
   {
     name:'Laptop gaming',
     pos:new T.Vector3(desk2X,1.37,desk2Z+.18),
-    use(){gamingLaptopOn=!gamingLaptopOn;gamingScreenFace.material.emissiveIntensity=gamingLaptopOn ? .9 : .12;say(gamingLaptopOn?'Laptop gaming đã bật, đèn RGB sáng lên.':'Laptop gaming đã tắt.');}
+    use(){ enterLaptopFocus('gaming'); }
   },
   {
     name:'Ghế bàn học phòng ngủ',
@@ -1055,33 +1069,17 @@ const groundFloor = createGroundFloor({ T, scene, camera, targets, say, cyl, bal
 
 const basement = createBasement(T, scene);
 let inBasement = false;
-function moveThroughHatch(entering) {
-  current = null;
-  inBasement = entering;
-  basement.flashlight.visible = false;
-  playerY = standEyeY;
-  velY = 0;
-  isGrounded = true;
-  if (entering) {
-    camera.position.set(42.05, basement.floor(42.05,9.38)+standEyeY, 9.38);
-    yaw = .18;
-    pitch = -.20;
-    say('Tầng hầm · Nhấn T để bật đèn pin.');
-  } else {
-    camera.position.set(9.25, lowerFloorHeight(9.25,11.12)+standEyeY, 11.12);
-    yaw = Math.PI/2;
-    pitch = 0;
-  }
-}
-targets.push({name:'Mở nắp xuống tầng hầm', pos:new T.Vector3(9.35,-3.24,10.24),
-  use:()=>moveThroughHatch(true)});
-const basementTargets = [{name:'Mở nắp trở lên tầng một', pos:new T.Vector3(42.18,-4.18,9.8),
-  use:()=>moveThroughHatch(false)}];
+const hatchCenter=new T.Vector3(cellar.left,cellar.upper,cellar.firstStep);
+targets.push({name:'Mở nắp xuống tầng hầm', pos:new T.Vector3(cellar.left+.18,cellar.upper+.1,cellar.firstStep),
+  available:()=>!basement.opened && !(camera.position.x>=cellar.left && camera.position.x<=cellar.right &&
+    camera.position.z>cellar.firstStep && camera.position.z<cellar.coverEnd),
+  use(){ basement.open(); say('Nắp hầm đã mở. Bước xuống cầu thang để vào hầm.'); }
+});
 function walkingFloor(x,z) {
   return inBasement ? basement.floor(x,z) : lowerFloorHeight(x,z) ?? 0;
 }
 
-const hint=document.querySelector('#hint'),computerHint=document.querySelector('#computerHint');
+const hint=document.querySelector('#hint');
 
 function normalizeKey(e){
   if(['KeyW','KeyA','KeyS','KeyD','KeyE','KeyF','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Digit1','Digit2','Digit3','Space'].includes(e.code)) return e.code;
@@ -1095,8 +1093,11 @@ function normalizeKey(e){
   return e.code;
 }
 
-renderer.domElement.addEventListener('mousedown',()=>{
+renderer.domElement.addEventListener('mousedown',event=>{
   if(started){
+    if(event.button===0 && current && ['Laptop','Laptop gaming','Mở nắp xuống tầng hầm'].includes(current.name)){
+      current.use(); return;
+    }
     dragging=true;
     if(!locked) safePointerLock(renderer.domElement);
   }
@@ -1105,13 +1106,10 @@ window.addEventListener('mouseup',()=>dragging=false);
 document.addEventListener('pointerlockchange',()=>locked=document.pointerLockElement===renderer.domElement);
 
 document.addEventListener('mousemove',e=>{
-  if(started && (locked||dragging)){
+  if(started && !laptopFocus && (locked||dragging)){
     yaw-=e.movementX*.0022;
     pitch=T.MathUtils.clamp(pitch-e.movementY*.0019,-1.22,1.22);
-    if(laptopFocus){
-      yaw=T.MathUtils.clamp(yaw,-0.08,0.36);
-      pitch=T.MathUtils.clamp(pitch,-0.22,0.22);
-    } else if(bathroom.isMirrorFocus()){
+    if(bathroom.isMirrorFocus()){
       yaw=T.MathUtils.clamp(yaw,-0.32,0.32);
       pitch=T.MathUtils.clamp(pitch,-0.25,0.25);
     }
@@ -1125,6 +1123,14 @@ window.addEventListener('keydown',e=>{
     e.preventDefault();
     return;
   }
+  if(laptopFocus){
+    if(/^Digit[1-4]$/.test(code)) showApp(Number(code.slice(-1))-1);
+    else if(['Space','Escape','KeyE'].includes(code)){
+      e.preventDefault();
+      exitLaptopFocus(code==='KeyE');
+    }
+    return;
+  }
   keys[code]=true;
   if(code==='KeyT' && inBasement) basement.flashlight.visible = !basement.flashlight.visible;
   if(code==='Space' && started){
@@ -1132,10 +1138,6 @@ window.addEventListener('keydown',e=>{
     if(bathroom.isMirrorFocus()){
       const ret = bathroom.exitMirrorFocus();
       if(ret){ yaw = ret.yaw; pitch = ret.pitch; }
-      return;
-    }
-    if(laptopFocus){
-      exitLaptopFocus();
       return;
     }
     if(pose !== 'stand'){
@@ -1155,11 +1157,6 @@ window.addEventListener('keydown',e=>{
     if(bathroom.isMirrorFocus()){
       const ret = bathroom.exitMirrorFocus();
       if(ret){ yaw = ret.yaw; pitch = ret.pitch; }
-    } else if(laptopFocus){
-      screenPower=false;
-      renderComputer();
-      exitLaptopFocus(true);
-      say('Laptop đã tắt.');
     } else if(pose === 'under_bed_1' || pose === 'under_bed_2'){
       standUp();
     } else if(current) {
@@ -1169,11 +1166,6 @@ window.addEventListener('keydown',e=>{
     }
     else if(pose !== 'stand') standUp();
   }
-  if(started&&screenPower&&['Digit1','Digit2','Digit3'].includes(code)){
-    screenView={Digit1:'Message',Digit2:'Phonecall',Digit3:'News'}[code];
-    renderComputer();
-    say('Đã mở ứng dụng '+screenView+'.');
-  }
   if(started&&['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(code)) e.preventDefault();
 });
 
@@ -1182,6 +1174,9 @@ window.addEventListener('blur',()=>{keys={};dragging=false;});
 
 function blocked(x,z){
   if(inBasement) return basement.blocks(x,z,camera.position.x);
+  if(basement.blocksFromAbove(x,z)) return true;
+  if(basement.opened && basement.belowLanding(x,z) && z<cellar.coverEnd &&
+      (camera.position.z>cellar.firstStep || !basement.inLane(camera.position.x))) return true;
   if(lowerFloorHeight(x,z) !== null) return groundFloor.blocksFurniture(x,z);
   if(x < -4.15 || x > 19.20) return true;
   if(x <= 4.15 && (z < -3.15 || z > 3.15)) return true;
@@ -1230,20 +1225,22 @@ function animate(){
       for (let step = 0; step < steps; step++) {
         if(!blocked(camera.position.x+dx,camera.position.z)) camera.position.x+=dx;
         if(!blocked(camera.position.x,camera.position.z+dz)) camera.position.z+=dz;
+        if(basement.opened && basement.inLane(camera.position.x)){
+          if(!inBasement && camera.position.z>cellar.firstStep && camera.position.z<cellar.coverEnd) inBasement=true;
+          if(inBasement && camera.position.z<=cellar.firstStep){
+            inBasement=false;
+            basement.flashlight.visible=false;
+          }
+        }
       }
     }
 
-    if(laptopFocus){
-      camera.position.x = T.MathUtils.damp(camera.position.x, 0.77, 10, dt);
-      camera.position.y = T.MathUtils.damp(camera.position.y, 1.39, 10, dt);
-      camera.position.z = T.MathUtils.damp(camera.position.z, -2.14, 10, dt);
-      camera.fov = T.MathUtils.damp(camera.fov, 68, 10, dt);
-      camera.updateProjectionMatrix();
-    } else if(!bathroom.isMirrorFocus() && pose === 'stand'){
+    if(laptopFocus) return;
+    if(!bathroom.isMirrorFocus() && pose === 'stand'){
       if(!isGrounded || playerY > standEyeY){
         playerY += velY * dt;
         velY -= 11.5 * dt;
-        const eyeLimit = inBasement ? Math.min(2.92, -3.25 - walkingFloor(camera.position.x,camera.position.z)) : 2.92;
+        const eyeLimit = inBasement && camera.position.z>cellar.coverEnd ? Math.min(2.92, cellar.upper-.32-walkingFloor(camera.position.x,camera.position.z)) : 2.92;
         if(playerY >= eyeLimit){ playerY = eyeLimit; velY = Math.min(0, velY); }
         if(playerY <= standEyeY){
           playerY = standEyeY;
@@ -1275,22 +1272,23 @@ function animate(){
     current=null;
     const inCloset = isInsideWardrobe();
     if(!laptopFocus && !bathroom.isMirrorFocus()){
-      for(let t of (inBasement ? basementTargets : targets)){
+      for(let t of (inBasement ? [] : targets)){
         if(t.available && !t.available()) continue;
         if(t.name==='Công tắc đèn trong tủ' && wardrobeAngle<.8 && !inCloset) continue;
         const v=targetOffset.copy(t.pos).sub(camera.position),d=v.length();
         let maxDist = (t.name==='Cửa tủ quần áo' && inCloset) ? 2.5 : ((t.name==='Giường ngủ' || t.name==='Giường ngủ phòng ngủ') ? 2.75 : 2.35);
         let minDot = ((t.name==='Cửa tủ quần áo' || t.name==='Công tắc đèn trong tủ') && inCloset) ? 0.35 : 0.60;
-        if(d<maxDist && d<score && v.dot(lookDirection)>minDot*d){current=t;score=d;}
+        const alignment=v.dot(lookDirection)/d;
+        const aimedAtScreen=(t.name==='Laptop' || t.name==='Laptop gaming') && alignment>.985;
+        const priority=aimedAtScreen ? d-maxDist : d;
+        if(d<maxDist && priority<score && alignment>minDot){current=t;score=priority;}
       }
     }
 
     if(bathroom.isMirrorFocus()){
       hint.style.display='block';
       hint.textContent='Đang soi gương · Di chuột nhìn quanh · [ Space / E ] Rời gương';
-    } else if(laptopFocus){
-      hint.style.display='block';
-      hint.textContent='Đang dùng Laptop · [ 1 / 2 / 3 ] Ứng dụng · [ Space ] Rời màn hình · [ E ] Tắt máy';
+
     } else if(pose === 'under_bed_1' || pose === 'under_bed_2'){
       hint.style.display='block';
       hint.textContent='Đang trốn dưới gầm giường · Nhấn [ Space ] hoặc [ E ] để chui ra';
@@ -1307,7 +1305,7 @@ function animate(){
       else if(current.name==='Công tắc đèn ngủ phải') hint.textContent = '[ E ]  ' + (rightNightOn ? 'Tắt đèn ngủ phải' : 'Bật đèn ngủ phải');
       else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E / F ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
       else if(current.name==='Cửa tủ quần áo') hint.textContent = '[ E ]  ' + (wardrobeTarget>.5 ? 'Đóng cửa tủ' : 'Mở cửa tủ');
-      else if(current.name==='Laptop') hint.textContent = '[ E ]  ' + (screenPower ? 'Xem màn hình Laptop' : 'Bật & xem Laptop');
+      else if(current.name==='Laptop' || current.name==='Laptop gaming') hint.textContent='[ Chuột trái / E ]  Mở laptop';
       else if(current.name==='Gương soi') hint.textContent = '[ E ]  Soi gương';
       else hint.textContent='[ E ]  Tương tác · '+current.name;
     } else if(pose === 'sit' || pose === 'sit2'){
@@ -1329,8 +1327,7 @@ function animate(){
       hint.style.display='none';
     }
 
-    computerHint.style.display=screenPower && previousFloor === 0?'block':'none';
-    computerHint.textContent=screenPower?(laptopFocus?'Laptop: 1 Message · 2 Phonecall · 3 News · Space rời màn hình · E tắt laptop':'Laptop đang bật: Nhìn laptop nhấn E để phóng to · 1/2/3 đổi tab'):'';
+
   }
 
   if(fanOn) rotor.rotation.z-=dt*8;
@@ -1359,14 +1356,16 @@ function animate(){
     creepyRedLight.intensity = 2.1 + Math.sin(performance.now()*.0025)*0.22;
   }
 
-  if(inBasement) {
-    basement.aimFlashlight(camera,lookDirection);
-    renderer.render(basement.scene,camera);
-    return;
-  }
-  bathroom.update(dt, started, yaw, pitch);
+  basement.update(dt);
+  if(!inBasement) bathroom.update(dt, started, yaw, pitch);
   groundFloor.update(dt);
   renderer.render(scene,camera);
+  if(basement.opened && (inBasement || camera.position.distanceTo(hatchCenter)<8)){
+    basement.aimFlashlight(camera,lookDirection);
+    renderer.autoClear=false;
+    renderer.render(basement.scene,camera);
+    renderer.autoClear=true;
+  }
 }
 
 window.addEventListener('resize',()=>{

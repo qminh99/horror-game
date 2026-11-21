@@ -1,5 +1,7 @@
 import { createFrontYard } from './front-yard.js';
 
+import { cellar } from './cellar-layout.js';
+
 export const stairOpening = { left: 7.46, right: 9.14 };
 
 const stair = { start: 3.43, top: 4.36, bottom: 9.56, floor: -3.35, steps: 19 };
@@ -205,6 +207,19 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
       boxAt(brass, edge + Math.sign(center - edge) * .09, .95 + stair.floor * fraction, stair.top + run * fraction, .18, .075, .06, stairs);
     }
   }
+  // Enclose the high stair walls with a pitched roof and a solid front gable.
+  const roof = plaster(0x383e40);
+  const wallTop = 3.04;
+  const roofDepth = stair.bottom-stair.start+.65;
+  for(const side of [-1,1]){
+    boxAt(roof,center+side*.57,wallTop+.21,stairMidZ,1.29,.15,roofDepth,stairs).rotation.z=-side*.33;
+  }
+  boxAt(passageWall,center,1.37,stair.bottom+.03,width+.14,3.44,.14,stairs);
+  const gable = new T.Shape();
+  gable.moveTo(-1.14,0); gable.lineTo(1.14,0); gable.lineTo(0,.4); gable.closePath();
+  const gableFace = new T.Mesh(new T.ExtrudeGeometry(gable,{depth:.1,bevelEnabled:false}),roof);
+  gableFace.position.set(center,wallTop,stair.bottom+.08);
+  stairs.add(gableFace);
   const stairSconce = plaster(0xc38750, { emissive: 0xf2a95e, emissiveIntensity: 1.2 });
   for (const [z, y] of [[4.52, 2.13], [7.45, .12]]) {
     boxAt(brass, stairOpening.right - .10, y, z, .068, .29, .19, stairs);
@@ -229,7 +244,11 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   const { west, kitchenWall: kitchenEdge, livingWall: livingEdge, east, back, front } = house;
   roomShell(tile, west, kitchenEdge, back, front);
   roomShell(planks, livingEdge, east, back, front);
-  roomShell(tile, kitchenEdge, livingEdge, stair.bottom, front);
+  for (const [x1,x2,z1,z2] of [
+    [kitchenEdge, cellar.left, stair.bottom, front], [cellar.right, livingEdge, stair.bottom, front],
+    [cellar.left, cellar.right, stair.bottom, cellar.top], [cellar.left, cellar.right, cellar.coverEnd, front]
+  ]) span(tile,x1,x2,z1,z2,-.11,.22);
+  span(ceiling,kitchenEdge,livingEdge,stair.bottom,front,height+.075,.15);
   wall(kitchenWall, west - .08, west + .08, back, front);
   wall(livingWall, east - .08, east + .08, back, front);
   wall(kitchenWall, west, kitchenEdge, back - .08, back + .08);

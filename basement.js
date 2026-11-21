@@ -1,11 +1,18 @@
+import { cellar } from './cellar-layout.js';
+
 // The basement is rendered on its own so light from the house cannot reach it.
 export function createBasement(T, houseScene) {
   const scene = new T.Scene();
-  scene.background = new T.Color(0x000000);
+
   scene.fog = new T.FogExp2(0x000000, .052);
-  const base = -7;
+  const base = cellar.lower;
+  const center = (cellar.left + cellar.right) / 2;
+  const width = cellar.right - cellar.left;
+  const offsetX = center - (43 - width / 2);
+  const offsetZ = cellar.top + 10;
   const room = new T.Group();
-  room.position.y = base;
+  room.position.set(offsetX,base,offsetZ);
+  room.scale.z = -1;
   scene.add(room);
   const cube = new T.BoxGeometry();
   const material = color => new T.MeshStandardMaterial({color, roughness: .94});
@@ -76,9 +83,11 @@ export function createBasement(T, houseScene) {
     box(room,mat,x,h/2,z,w,h,d);
     obstacles.push([x,z,w/2+.22,d/2+.22]);
   }
-  const height = 3.9;
+  const height = cellar.upper - base - .25;
   box(room,slab,36.5,-.10,5,13,.2,10);
-  box(room,cement,36.5,height+.1,5,13,.2,10);
+  box(room,cement,36.5-width/2,height+.1,5,13-width,.2,10);
+  const covered = offsetZ - cellar.coverEnd;
+  box(room,cement,43-width/2,height+.1,covered/2,width,.2,covered);
   for (const z of [0,10]) box(room,cement,36.5,height/2,z,13,height,.18);
   for (const x of [30,43]) box(room,cement,x,height/2,5,.18,height,10);
   // Two openings in the tagged partition lead around the rear service bay.
@@ -109,21 +118,27 @@ export function createBasement(T, houseScene) {
   obstacles.push([36.9,5.2,.54,.54]);
 
   // A short cellar stair runs against the east wall. Its side is solid.
-  const stairLeft=41.35, start=6.1, tread=.40, rise=.16, count=9;
-  for (let i=0; i<count; i++) {
-    const h=(i+1)*rise;
-    box(room,cement,42.175,h/2,start+(i+.5)*tread,1.65,h,tread);
+  const tread = (cellar.foot - cellar.firstStep) / cellar.steps;
+  const rise = (cellar.upper - base) / cellar.steps;
+  const localX = center-offsetX;
+  for (let i=0; i<cellar.steps; i++) {
+    const h = (cellar.steps-i-.5)*rise;
+    box(room,cement,localX,h/2,offsetZ-cellar.firstStep-(i+.5)*tread,width,h,tread);
   }
-  box(room,wood,42.175,2.91,9.87,1.54,1.9,.12);
-  box(room,steel,42.62,2.49,9.78,.12,.08,.09);
+  const landing = cellar.firstStep-cellar.top;
+  box(room,cement,localX,cellar.upper-base-.10,10-landing/2,width,.20,landing);
+  const length = cellar.coverEnd-cellar.top;
   const hatch = new T.Group();
   houseScene.add(hatch);
-  hatch.position.set(9.35,-3.325,10.24);
-  box(hatch,oxidized,0,0,0,1.19,.04,1.18);
-  for (let i=0;i<5;i++) box(hatch,wood,(i-2)*.214,.027,0,.205,.04,1.06);
-  for (const z of [-.33,.33]) box(hatch,steel,0,.054,z,1.04,.025,.055);
-  box(hatch,steel,0,.081,.29,.24,.05,.06);
-
+  hatch.position.set(cellar.right,cellar.upper+.012,cellar.top+length/2);
+  box(hatch,wood,-width/2,0,0,width,.055,length);
+  for (const z of [-length*.35,length*.35]) box(hatch,steel,-width/2,.035,z,width,.026,.07);
+  box(hatch,steel,-width+.17,.063,-length*.29,.07,.08,.24);
+  // A dim landing light reveals the steps while the room beyond stays dark.
+  const guide = new T.PointLight(0xffc28a,8,5);
+  guide.position.set(center,cellar.upper+.65,cellar.firstStep);
+  scene.add(guide);
+  let opening = false;
   room.traverse(object => {
     if (object.isMesh) {
       object.castShadow = true;
@@ -157,14 +172,29 @@ export function createBasement(T, houseScene) {
         beam.shadow.needsUpdate = true;
       }
     },
+    open() { opening = true; },
+    get opened() { return opening; },
+    update(dt) {
+      if (opening) hatch.rotation.z = T.MathUtils.damp(hatch.rotation.z,-Math.PI/2,5,dt);
+    },
+    inLane(x) { return x >= cellar.left+.15 && x <= cellar.right-.15; },
+    belowLanding(x,z) {
+      return this.inLane(x) && z > cellar.firstStep && z <= cellar.foot;
+    },
     floor(x,z) {
-      if(x<stairLeft || z<start) return base;
-      return base+rise*Math.min(count,1+Math.floor((z-start)/tread));
+      if (!this.inLane(x)) return base;
+      const progress = T.MathUtils.clamp((z-cellar.firstStep)/(cellar.foot-cellar.firstStep),0,1);
+      return cellar.upper+(base-cellar.upper)*progress;
     },
     blocks(x,z,oldX) {
-      if(x<30.32 || x>42.68 || z<.32 || z>9.67) return true;
-      if(z>start+.35 && (x>=stairLeft)!==(oldX>=stairLeft)) return true;
-      return obstacles.some(([cx,cz,rx,rz])=>Math.abs(x-cx)<rx && Math.abs(z-cz)<rz);
+      const lx=x-offsetX, lz=offsetZ-z;
+      if(lx<30.22 || lx>42.85 || lz<.22 || z<cellar.top) return true;
+      if(z<cellar.foot && this.inLane(x)!==this.inLane(oldX)) return true;
+      return obstacles.some(([cx,cz,rx,rz])=>Math.abs(lx-cx)<rx && Math.abs(lz-cz)<rz);
+    },
+    blocksFromAbove(x,z) {
+      if (!opening || x<cellar.left || x>cellar.right || z<=cellar.firstStep || z>=cellar.coverEnd) return false;
+      return hatch.rotation.z > -1.35 || !this.inLane(x);
     }
   };
 }

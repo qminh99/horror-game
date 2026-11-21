@@ -11,6 +11,7 @@ export function createFrontYard({
   const fence = muted(0x414650, 0x263447);
   const metal = muted(0x202c37);
   const bark = muted(0x2c2a2b, 0x202832);
+  const glass = muted(0x4c5750, 0x455c56);
   const eaves = muted(0x272932);
   const fascia = muted(0x505359);
   const porch = muted(0x58545a);
@@ -34,12 +35,46 @@ export function createFrontYard({
   }), emissive: 0x182731, emissiveIntensity: .45 });
   const box = (material, x, y, z, w, h, d) => boxAt(material, x, y, z, w, h, d, group);
 
-  box(ground, center, -.22, front + 21, 68, .32, 42);
+  box(ground, center, -.22, front + 9.6, 128, .32, 19.2);
   box(terrain, (yard.left + yard.right) / 2, -.075, (front + yard.end) / 2, yard.right - yard.left, .15, yard.end - front);
   box(porch, center, -.045, front + .76, 2.55, .085, 1.52);
   for (let i = 0; i < 15; i++) {
     const z = front + 1.92 + i * .77;
     box(stone, center + Math.sin(i * .71) * .075, .005, z, 1.53, .025, .72).rotation.y = (i % 4 - 1.5) * .016;
+  }
+
+  // The road follows the ridge. Beyond its far shoulder the terrain drops away.
+  const roadZ = yard.end + 2.75;
+  const asphalt = muted(0x292e36,0x28303b);
+  box(asphalt,center,-.04,roadZ,128,.12,4.4);
+  for (let x=-53; x<70; x+=6) box(stone,x,.026,roadZ,2.1,.012,.075);
+  const rock = muted(0x293039,0x1a2833);
+  box(rock,center,-5.15,front+22.9,128,.6,13).rotation.x=.88;
+  for (const [x,z,w] of [[-16,22,5.6],[33,18,6.4],[-43,24,4.8],[57,23,5.3]]) {
+    box(fascia,x,1.32,z,w,2.64,4.1);
+    for (const side of [-1,1]) {
+      box(eaves,x,2.99,z+side*1.14,w+.68,.17,2.49).rotation.x=side*.32;
+      box(glass,x+side*w*.31,1.47,z+2.07,.83,.88,.05);
+    }
+    box(amber,x-w*.31,1.47,z+2.11,.63,.65,.025);
+    box(metal,x+.4,.99,z+2.07,.84,1.98,.06);
+  }
+
+  // Unlit silhouettes and windows retain their contrast through the night haze.
+  const skyline = new T.MeshBasicMaterial({color:0x101c25,fog:false});
+  const windows = [0xc89c66,0x7996aa,0xe2c58e].map(color=>new T.MeshBasicMaterial({color,fog:false}));
+  for (let row=0;row<3;row++) {
+    for (let i=0;i<33;i++) {
+      const x=center+(i-16)*3.6+Math.sin(i*7+row)*1.3;
+      const z=52+row*8+Math.cos(i)*2;
+      const top=-2.9+row*.74+1.5*Math.sin(i*13.7+row*5.4);
+      const w=1.4+.65*(1+Math.cos(i*3.4));
+      box(skyline,x,top-4,z,w,8,1.5);
+      for(let k=0;k<12;k++){
+        if(Math.cos(i*6.7+k*5+row)<-.27) continue;
+        box(windows[(i+k+row)%3],x+(k%3-1)*w*.28,top-.34-Math.floor(k/3)*.55,z-.76,.17,.16,.03);
+      }
+    }
   }
 
   const faceZ = front + .095;
@@ -51,7 +86,6 @@ export function createFrontYard({
   }
   box(eaves, (house.west + house.east) / 2, 2.99, front + .08, house.east - house.west + .39, .17, .67);
   box(eaves, center, 2.73, front + .50, 2.63, .14, 1.31).rotation.x = .09;
-  const glass = muted(0x4c5750, 0x455c56);
   for (const x of [3.1, 13.62]) {
     box(eaves, x, 1.67, faceZ + .046, 1.48, 1.12, .13);
     box(glass, x, 1.68, faceZ + .122, 1.29, .91, .045);

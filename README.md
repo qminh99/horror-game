@@ -14,13 +14,15 @@ Trong thư mục dự án, chạy `python3 serve_game.py`. Trình chạy sẽ m�
 ## Điều khiển
 - **W** tiến; **S** lùi; **A** sang trái; **D** sang phải
 - **Chuột** nhìn quanh; **E** tương tác; **Space** nhảy, đứng dậy hoặc rời màn hình laptop; **Esc** thả chuột
-- Khi laptop bật: nhấn **1** Message, **2** Phonecall, **3** News
+- Nhìn vào laptop và bấm chuột trái hoặc **E** để mở toàn màn hình. Chọn ứng dụng bằng chuột hoặc phím **1–4** (Tin nhắn, Cuộc gọi, Báo mới, Học phần). Nhấn **Space** để rời laptop.
 - Khi ở trong tủ: nhấn **F** để bật hoặc tắt đèn tủ
 
 ## Khám phá ngôi nhà
 Bạn bắt đầu trong phòng ngủ tầng hai. Nhìn vào cửa và nhấn **E** để ra hành lang, rồi khám phá phòng ngủ đối diện và nhà vệ sinh.
 
 Từ hành lang tầng hai, đi theo biển **TẦNG 1**. Khi bước xuống hết cầu thang, rẽ phải vào bếp hoặc rẽ trái vào phòng khách. Dùng **E** để bật/tắt đèn bếp hoặc TV. Đi lại lên cầu thang để trở về tầng hai.
+
+Nắp hầm nằm cạnh chân cầu thang tầng một. Mở nắp, bước vào từ đầu gần cầu thang tầng hai rồi tự đi xuống. Nhấn **T** để bật đèn pin.
 
 Đi thẳng từ chân cầu thang theo biển **RA SÂN**. Nhấn **E** để mở hoặc đóng cửa chính từ cả hai phía.
 
