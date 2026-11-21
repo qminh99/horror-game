@@ -6,7 +6,8 @@ export const stairOpening = { left: 7.46, right: 9.14 };
 
 const stair = { start: 3.43, top: 4.36, bottom: 9.56, floor: -3.35, steps: 19 };
 const house = { west: .42, kitchenWall: 6.35, livingWall: 10.12, east: 17.35, back: 7.34, front: 12.56 };
-const doorway = { start: 10.57, end: 11.94 };
+const kitchenDoorway = { start: 10.57, end: 11.94 };
+const livingDoorway = { start: 11.02, end: 12.49 };
 const radius = .22;
 const entrance = { left: 7.58, right: 9.02, height: 2.36 };
 const yard = { left: -.45, right: 18.25, end: 25.8 };
@@ -33,6 +34,7 @@ export function lowerFloorHeight(x, z) {
   if (x < house.west + radius || x > house.east - radius || z < house.back + radius) return null;
   if (x > house.kitchenWall - radius && x < house.livingWall + radius && z < stair.bottom + radius) return null;
 
+  const doorway = x < (house.kitchenWall + house.livingWall) / 2 ? kitchenDoorway : livingDoorway;
   const nearPartition = Math.abs(x - house.kitchenWall) < radius || Math.abs(x - house.livingWall) < radius;
   if (nearPartition && (z < doorway.start + radius || z > doorway.end - radius)) return null;
   return stair.floor;
@@ -260,7 +262,7 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   span(passageWall, entrance.left, entrance.right, front - .08, front + .08, (height + entrance.height) / 2, height - entrance.height);
   wall(passageWall, kitchenEdge, stairOpening.left, stair.bottom - .08, stair.bottom + .08);
   wall(passageWall, stairOpening.right, livingEdge, stair.bottom - .08, stair.bottom + .08);
-  for (const [x, material] of [[kitchenEdge, kitchenWall], [livingEdge, livingWall]]) {
+  for (const [x, material, doorway] of [[kitchenEdge, kitchenWall, kitchenDoorway], [livingEdge, livingWall, livingDoorway]]) {
     wall(material, x - .08, x + .08, back, doorway.start);
     wall(material, x - .08, x + .08, doorway.end, front);
     span(material, x - .08, x + .08, doorway.start, doorway.end, 2.58, .58);
@@ -679,10 +681,10 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
     );
   }
 
-  function update(dt = 0) {
-    rooms.visible = camera.position.z > 6.25;
+  function update(dt = 0, viewPosition = camera.position) {
+    rooms.visible = viewPosition.z > 6.25;
     const now = performance.now();
-    outdoors.update(camera.position, now);
+    outdoors.update(viewPosition, now);
     if (!rooms.visible) return;
     const nextAngle = T.MathUtils.damp(frontDoorAngle, frontDoorTarget, 5, dt);
     if (!blocksFrontDoor(camera.position.x, camera.position.z, nextAngle)) {

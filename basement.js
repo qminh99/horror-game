@@ -133,7 +133,7 @@ export function createBasement(T, houseScene) {
   hatch.position.set(cellar.right,cellar.upper+.012,cellar.top+length/2);
   box(hatch,wood,-width/2,0,0,width,.055,length);
   for (const z of [-length*.35,length*.35]) box(hatch,steel,-width/2,.035,z,width,.026,.07);
-  box(hatch,steel,-width+.17,.063,-length*.29,.07,.08,.24);
+  const handle = box(hatch,steel,-width+.17,.063,0,.07,.08,.24);
   // A dim landing light reveals the steps while the room beyond stays dark.
   const guide = new T.PointLight(0xffc28a,8,5);
   guide.position.set(center,cellar.upper+.65,cellar.firstStep);
@@ -172,14 +172,19 @@ export function createBasement(T, houseScene) {
         beam.shadow.needsUpdate = true;
       }
     },
-    open() { opening = true; },
+    toggle() { opening = !opening; },
+    handlePosition(target) { return handle.getWorldPosition(target); },
+    overHatch(x,z) {
+      return x >= cellar.left && x <= cellar.right && z >= cellar.top && z < cellar.coverEnd;
+    },
     get opened() { return opening; },
     update(dt) {
-      if (opening) hatch.rotation.z = T.MathUtils.damp(hatch.rotation.z,-Math.PI/2,5,dt);
+      hatch.rotation.z = T.MathUtils.damp(hatch.rotation.z,opening ? -Math.PI/2 : 0,8,dt);
     },
     inLane(x) { return x >= cellar.left+.15 && x <= cellar.right-.15; },
-    belowLanding(x,z) {
-      return this.inLane(x) && z > cellar.firstStep && z <= cellar.foot;
+    canDescend(x,z) {
+      return opening && hatch.rotation.z < -1.35 && this.inLane(x) &&
+        z > cellar.firstStep && z < cellar.coverEnd;
     },
     floor(x,z) {
       if (!this.inLane(x)) return base;
@@ -193,8 +198,11 @@ export function createBasement(T, houseScene) {
       return obstacles.some(([cx,cz,rx,rz])=>Math.abs(lx-cx)<rx && Math.abs(lz-cz)<rz);
     },
     blocksFromAbove(x,z) {
-      if (!opening || x<cellar.left || x>cellar.right || z<=cellar.firstStep || z>=cellar.coverEnd) return false;
-      return hatch.rotation.z > -1.35 || !this.inLane(x);
+      if (!this.overHatch(x,z)) return false;
+      const angle = hatch.rotation.z;
+      if (!opening) return angle < -.06;
+      if (angle > -1.35) return z > cellar.firstStep && angle < -.06;
+      return x > cellar.right-.15;
     }
   };
 }

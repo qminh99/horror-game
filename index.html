@@ -1,28 +1,48 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Căn phòng lúc chạng vạng</title><style>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" sizes="128x128" href="./assets/game-icon.png"><title>Căn phòng lúc chạng vạng</title><style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#091112;color:#e8e5dc;font:14px Segoe UI,Arial}canvas{display:block}#ui{position:fixed;inset:0;pointer-events:none;z-index:2}.panel{position:absolute;top:20px;left:22px;padding:14px 17px;background:#081112d9;border:1px solid #c7d8ca38;border-left:2px solid #b7d4bf;min-width:245px}.eyebrow{font-size:10px;letter-spacing:.2em;color:#aec7b6;text-transform:uppercase}.title{font:21px Georgia;margin:7px 0 10px}#hint,#caption{position:absolute;left:50%;transform:translateX(-50%);background:#050a0be8;padding:10px 14px;border:1px solid #dce8db55;display:none;text-align:center}#hint{bottom:7%}#caption{bottom:13%;max-width:80vw}#cross{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#dce5da;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 7px #fff}.shade{position:absolute;inset:0;background:radial-gradient(ellipse,transparent 30%,#0009);pointer-events:none}#overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse,#162324c9,#030708f2 80%);z-index:10;pointer-events:auto}#card{max-width:550px;margin:20px;padding:30px;background:#0c1415;border:1px solid #ceddce40}h1{font:34px Georgia;margin:9px 0 12px}p{line-height:1.65;color:#bbc5bd}button{border:0;background:#c4d7c7;color:#101814;padding:12px 18px;font-weight:bold;letter-spacing:.08em;cursor:pointer;pointer-events:auto}button:hover{background:#d8eadb}.small{font-size:11px;color:#84918b}
 button:disabled{opacity:.48;cursor:wait}
-#desktop:not([hidden]){position:fixed;inset:0;z-index:12;display:flex;flex-direction:column;background:radial-gradient(ellipse at 75% 18%,#32575b,#142b30 54%,#0a181d);color:#eff2e8;overflow:auto}
-#desktop header,#desktop footer{padding:16px clamp(18px,5vw,80px);background:#0d1e23;display:flex;align-items:center;justify-content:space-between}
-#desktop strong,#desktop small{letter-spacing:.16em}
-#desktop main{margin:auto;width:min(860px,92%);padding:32px 0}
-#apps{display:flex;flex-wrap:wrap;gap:8px}
-#desktop button{border-radius:5px;letter-spacing:0}
-#apps button{background:#183239;color:#dee8de;border:1px solid #799790}
-#apps button[aria-pressed=true]{background:#c8ddca;color:#16302b}
-#desktop article{margin-top:16px;padding:clamp(24px,5vw,60px);background:#11272ded;border:1px solid #5b7779;border-radius:8px;min-height:200px}
-#desktop article p{white-space:pre-line;font-size:17px}
-#desktop footer,#desktop small{color:#b5c9c0;font-size:12px}
+#desktop:not([hidden]){position:fixed;inset:0;z-index:12;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#171c19;color:#d3d3b7;border:clamp(5px,1vw,18px) solid #141511;box-shadow:inset 0 0 0 2px #6c6f59;font:16px/1.4 "Courier New",monospace;text-shadow:.6px 0 1px #a1ad7880}
+#wallpaper{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;z-index:-1;filter:blur(.45px)}
+#desktop::after{content:"";pointer-events:none;position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0c100e24 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 48%,#080a08a6 100%);z-index:2}
+#desktop header,#desktop footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 14px;background:#353a31;color:#e1dfbf;border:2px outset #8d9079}
+#desktop header strong{letter-spacing:.12em;font-size:15px}
+#desktop button{font:inherit;color:inherit;letter-spacing:0;border-radius:0}
+#desktop header button,#desktop article button{background:#41463b;border:2px outset #858a72;padding:2px 10px}
+#desktop button:focus-visible{outline:1px dashed #e5e4bf;outline-offset:-4px}
+#desktop main{position:relative;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:clamp(12px,3vw,46px);gap:clamp(12px,3vw,36px)}
+#apps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:min(920px,100%);gap:clamp(8px,2vw,32px);flex:none;margin-top:auto}
+#apps:has(+ [hidden]){margin-bottom:auto}
+#apps button{display:grid;justify-items:center;gap:clamp(6px,1.2vw,18px);width:100%;background:transparent;padding:clamp(8px,2vw,22px) 3px;border:1px solid transparent;font-size:clamp(14px,2vw,24px);text-shadow:1px 1px #000}
+#apps button span{background:#20261fe0;padding:1px 4px}
+#apps canvas{width:clamp(50px,min(12vw,21vh),160px);aspect-ratio:1;height:auto;max-width:100%;image-rendering:pixelated;filter:drop-shadow(2px 2px #101710) blur(.25px)}
+#apps button:hover,#apps button[aria-pressed=true]{background:#525c4ad9;border:1px dotted #b9bea1}
+#desktop article{flex:none;margin-bottom:auto;width:min(520px,100%);background:#bdbea4;color:#1f241d;border:3px outset #d1d0b8;box-shadow:5px 5px 0 #10150fb3;filter:blur(.18px)}
+#desktop article header{padding:2px 4px 2px 10px;background:#424c3f;border:0;color:#f0ebcf}
+#desktop article h1{margin:20px 18px 10px;font:bold clamp(16px,2.4vw,22px)/1.3 "Courier New",monospace}
+#desktop article p{margin:0 18px 26px;white-space:pre-line;font-size:16px;line-height:1.55;color:#252a21}
+#desktop footer{justify-content:flex-start;font-size:13px}
+@media(max-width:550px){#apps{gap:2px}#apps button{font-size:13px}#apps button span{padding-inline:1px}#desktop footer{font-size:11px}}
+#desktop:has(#cctv:not([hidden])) #apps canvas{width:38px}
+#desktop:has(#cctv:not([hidden])) #apps button{padding:4px;font-size:14px;gap:2px}
+#desktop:has(#cctv:not([hidden])) article{width:min(760px,100%)}
+#cctv{padding:8px}
+#cctv canvas{width:100%;height:auto;image-rendering:pixelated;filter:grayscale(.85) contrast(1.12)}
+#channels{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+#channels button{background:#a7aa91;padding:5px 8px;border:2px outset #d1d0b8}
+#channels button[aria-pressed=true]{background:#384535;color:#ecebd6;border-style:inset}
 </style></head><body>
-<div id="overlay"><div id="card"><div class="eyebrow">KINH DỊ · BẢN THỬ</div><h1>Căn phòng lúc chạng vạng</h1><p><b>W A S D</b> di chuyển · <b>Space</b> nhảy / đứng dậy · <b>Chuột</b> nhìn quanh · <b>E</b> tương tác · <b>Esc</b> thả chuột</p><button id="start" type="button" disabled>VÀO PHÒNG</button><p class="small" id="statusText" role="status">Đang tải game. Hãy mở qua trình chạy và kết nối Internet để tải Three.js.</p></div></div>
+<div id="overlay"><div id="card"><img src="./assets/game-icon.png" alt="" width="64" height="64" style="float:right;margin:0 0 8px 12px"><div class="eyebrow">KINH DỊ · BẢN THỬ</div><h1>Căn phòng lúc chạng vạng</h1><p><b>W A S D</b> di chuyển · <b>Space</b> nhảy / đứng dậy · <b>Chuột</b> nhìn quanh · <b>E</b> tương tác · <b>Esc</b> thả chuột</p><button id="start" type="button" disabled>VÀO PHÒNG</button><p class="small" id="statusText" role="status">Đang tải game. Hãy mở qua trình chạy và kết nối Internet để tải Three.js.</p></div></div>
 <div id="ui"><div class="panel"><div class="eyebrow">KHÁM PHÁ NGÔI NHÀ</div><div class="title" id="floorLabel">Tầng hai</div></div><div id="cross"></div><div id="hint"></div><div id="caption" role="status"></div><div class="shade"></div></div>
 
 <section id="desktop" hidden aria-label="Laptop">
+  <canvas id="wallpaper" width="352" height="198" aria-hidden="true"></canvas>
   <header><strong>ROOMBOOK OS</strong><button id="leaveLaptop">Rời laptop</button></header>
   <main><nav id="apps" aria-label="Ứng dụng"></nav>
-  <article><small id="appMeta"></small><h1 id="appName"></h1><p id="appBody"></p></article></main>
-  <footer>1–4 mở ứng dụng · Space rời laptop · E tắt máy</footer>
+  <article id="appWindow" hidden><header><small id="appMeta"></small><button id="closeApp" aria-label="Đóng ứng dụng">×</button></header><h1 id="appName"></h1><p id="appBody"></p><div id="cctv" hidden><canvas id="feed" width="480" height="270" aria-label="Hình camera trực tiếp"></canvas><div id="channels" aria-label="Chọn camera"></div></div></article></main>
+  <footer>1–5 mở ứng dụng · Space rời laptop · E tắt máy</footer>
 </section>
 <script type="module">
+import { paintWallpaper, paintIcon } from './laptop-display.js';
 import { cellar } from './cellar-layout.js';
 let started = false, locked = false, dragging = false;
 const overlay = document.getElementById('overlay');
@@ -277,70 +297,40 @@ box(dark,.65,1.1075,-2.56,.76,.045,.53);
 box(dark,.65,1.36,-2.79,.76,.48,.045);
 
 const screenCanvas=document.createElement('canvas');
-screenCanvas.width=1200;screenCanvas.height=676;
+screenCanvas.width=352;screenCanvas.height=198;
 const screenCtx=screenCanvas.getContext('2d');
 const screenTexture=new T.CanvasTexture(screenCanvas);
 screenTexture.colorSpace=T.SRGBColorSpace;
 screenTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
 screenTexture.minFilter=T.LinearFilter;
-screenTexture.magFilter=T.LinearFilter;
+screenTexture.magFilter=T.NearestFilter;
 
 let screenPower=false,screenView='desktop';
 const screenMaterial=new T.MeshBasicMaterial({map:screenTexture,toneMapped:false});
 
 function renderComputer(){
-  let c=screenCtx;
-  c.save();
-  c.scale(2,2);
-  c.clearRect(0,0,600,338);
-  if(!screenPower){
-    c.fillStyle='#070c0e';
-    c.fillRect(0,0,600,338);
-    c.fillStyle='#29383c';
-    c.font='13px Segoe UI, Arial';
+  const c=screenCtx;
+  c.fillStyle='#090d0a';
+  c.fillRect(0,0,352,198);
+  if(screenPower){
+    c.drawImage(wallpaper,0,0);
+    c.fillStyle='#383e33';c.fillRect(0,0,352,15);
+    c.font='10px monospace';c.fillStyle='#dedec2';c.fillText('ROOMBOOK OS',5,11);
+    const iconY=screenView==='desktop' ? 76 : 27;
     c.textAlign='center';
-    c.fillText('[ Màn hình đang tắt · Nhấn E để bật ]',300,174);
+    Array.from(appNav.children).forEach((button,i)=>{
+      const x=176+(i-2)*66;
+      c.drawImage(button.firstElementChild,Math.round(x)-15,iconY,30,30);
+      c.fillText(laptopApps[i][0],x,iconY+44);
+    });
     c.textAlign='left';
-  }else{
-    let bg=c.createLinearGradient(0,0,600,338);
-    bg.addColorStop(0,'#0f2c32');bg.addColorStop(.52,'#2d5b5c');bg.addColorStop(1,'#102127');
-    c.fillStyle=bg;c.fillRect(0,0,600,338);
-    c.fillStyle='#9eb296';c.fillRect(370,48,185,205);
-    c.fillStyle='#4b7a80';c.fillRect(381,60,162,174);
-    c.fillStyle='#1d2c2f';c.fillRect(395,75,7,150);c.fillRect(439,75,7,150);c.fillRect(483,75,7,150);
-    c.fillStyle='#c4b491';c.fillRect(355,235,215,18);
-    c.fillStyle='#060b0de6';c.fillRect(0,0,600,32);
-    c.fillStyle='#f5f3e6';c.font='bold 14px Segoe UI, Arial';
-    c.fillText('ROOMBOOK OS     22:17 PM',18,21);
-    if(screenView==='desktop'){
-      c.fillStyle='#ffffff';c.font='bold 23px Segoe UI, Arial';
-      c.fillText('Chào buổi tối, Minh',24,64);
-      let apps=[['M','Tin nhắn','#5f8db5'],['☎','Cuộc gọi','#54a87b'],['N','Báo mới','#c98f49'],['H','Học phần','#876fa8']];
-      apps.forEach((a,i)=>{
-        let x=62+i*112;
-        c.fillStyle=a[2];c.beginPath();c.arc(x+25,139,30,0,Math.PI*2);c.fill();
-        c.strokeStyle='#ffffff88';c.lineWidth=2;c.stroke();
-        c.fillStyle='#ffffff';c.font='bold 27px Segoe UI, Arial';c.textAlign='center';
-        c.fillText(a[0],x+25,149);
-        c.textAlign='left';c.fillStyle='#ffffff';c.font='bold 15px Segoe UI, Arial';
-        c.fillText(a[1],x-4,190);
-      });
-      c.fillStyle='#071114cc';c.fillRect(18,274,310,34);
-      c.fillStyle='#e5f2e8';c.font='bold 14px Segoe UI, Arial';
-      c.fillText('Nhấn phím 1 · 2 · 3 · 4 để mở ứng dụng',28,296);
-    }else{
-      c.fillStyle='#eae8dc';c.fillRect(24,46,552,268);
-      c.strokeStyle='#182c2e';c.lineWidth=2;c.strokeRect(24,46,552,268);
-      c.fillStyle='#182c2e';c.fillRect(24,46,552,38);
-      c.fillStyle='#ffffff';c.font='bold 18px Segoe UI, Arial';
-      c.fillText(screenView + '   (Nhấn 1 · 2 · 3 · 4 để chuyển tab)',40,71);
-      c.textAlign='center';
-      c.fillStyle='#132022';c.font='bold 22px Segoe UI, Arial';
-      c.fillText(laptopApps.find(app=>app[0]===screenView)?.[2] ?? '',300,195);
-      c.textAlign='left';
+    if(screenView!=='desktop'){
+      c.fillStyle='#b6b9a0';c.fillRect(68,78,216,67);
+      c.fillStyle='#404b3e';c.fillRect(70,80,212,15);
+      c.fillStyle='#e6e4cb';c.fillText(screenView,75,91);
+      c.fillStyle='#21271f';c.fillText(document.querySelector('#appName').textContent,76,120);
     }
   }
-  c.restore();
   screenTexture.needsUpdate=true;
 }
 box(screenMaterial,.65,1.37,-2.76,.67,.36,.012);
@@ -683,21 +673,61 @@ let lightOn = true;
 
 let pose = 'stand';
 const standEyeY = 1.63;
-let playerY = standEyeY, velY = 0, isGrounded = true;
+let velY = 0, isGrounded = true;
 
 const laptopApps = [
   ['Tin nhắn','HỘP THƯ','Mẹ · 20:46','Mẹ về muộn. Con nhớ khóa cửa sân nhé.'],
   ['Cuộc gọi','NHẬT KÝ','Cuộc gọi nhỡ','Số lạ · 21:53\nMẹ · 19:12'],
   ['Báo mới','BẢN TIN ĐỊA PHƯƠNG','Sương xuống sớm trên đường đèo','Từ chập tối, các hộ dân trên núi đã thấy sương phủ kín khúc đường dẫn xuống thành phố.'],
-  ['Học phần','LỊCH HỌC','Học phần đang theo học','Nhiếp ảnh cơ bản · Thứ Hai, 08:00\nBài tập tuần này · Chụp phong cảnh ban đêm.']
+  ['Học phần','LỊCH HỌC','Học phần đang theo học','Nhiếp ảnh cơ bản · Thứ Hai, 08:00\nBài tập tuần này · Chụp phong cảnh ban đêm.'],
+  ['Camera','GIÁM SÁT','Camera','']
 ];
 let laptopFocus = false;
 let activeLaptop = null;
 const desktop = document.querySelector('#desktop');
+const wallpaper=document.querySelector('#wallpaper');
+paintWallpaper(wallpaper);
 const appNav = document.querySelector('#apps');
+const feed=document.querySelector('#feed');
+const feedContext=feed.getContext('2d');
+const channels=document.querySelector('#channels');
+let selectedChannel=0;
+let nextFeedFrame=0;
+const securityCameras=[
+  ['Cửa chính · Sân trước',[9.32,-.95,12.94],[8.3,-2.75,22]],
+  ['Tầng một · Hành lang',[8.28,-.77,9.87],[8.3,-2.22,12.28]],
+  ['Phòng ngủ · Quạt trần',[18.9,2.89,4.97],[14.35,1.75,2.25]]
+].map(([name,position,target],index)=>{
+  const lens=new T.PerspectiveCamera(80,16/9,.05,80);
+  lens.position.set(...position);
+  lens.lookAt(...target);
+  const housing=new T.Group();
+  housing.position.copy(lens.position);
+  housing.quaternion.copy(lens.quaternion);
+  scene.add(housing);
+  box(metal,0,0,.18,.23,.17,.28,housing);
+  box(dark,0,0,.025,.12,.11,.04,housing);
+  const button=document.createElement('button');
+  button.textContent=name;
+  button.onclick=()=>selectChannel(index);
+  channels.appendChild(button);
+  return lens;
+});
+function selectChannel(index){
+  selectedChannel=index;
+  nextFeedFrame=0;
+  Array.from(channels.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
+}
+selectChannel(0);
 function showApp(index) {
   const app = laptopApps[index];
+  document.querySelector('#appWindow').hidden=!app;
   screenView = app ? app[0] : 'desktop';
+  const watching=screenView==='Camera';
+  document.querySelector('#cctv').hidden=!watching;
+  document.querySelector('#appName').hidden=watching;
+  document.querySelector('#appBody').hidden=watching;
+  nextFeedFrame=0;
   document.querySelector('#appMeta').textContent = app?.[1] ?? 'ROOMBOOK';
   document.querySelector('#appName').textContent = app?.[2] ?? 'Chào buổi tối, Minh';
   document.querySelector('#appBody').textContent = app?.[3] ?? 'Chọn một ứng dụng để mở.';
@@ -706,7 +736,13 @@ function showApp(index) {
 }
 laptopApps.forEach(([name],i)=>{
   const button = document.createElement('button');
-  button.textContent = name;
+  const icon=document.createElement('canvas');
+  paintIcon(icon,i);
+  icon.setAttribute('aria-hidden','true');
+  const label=document.createElement('span');
+  label.textContent=name;
+  button.appendChild(icon);
+  button.appendChild(label);
   button.onclick = ()=>showApp(i);
   appNav.appendChild(button);
 });
@@ -731,6 +767,11 @@ function exitLaptopFocus(powerOff=false) {
   keys={};
   safePointerLock(renderer.domElement);
 }
+document.querySelector('#closeApp').onclick=()=>{
+  const selected=appNav.querySelector('[aria-pressed="true"]');
+  showApp(-1);
+  selected?.focus();
+};
 document.querySelector('#leaveLaptop').onclick=()=>exitLaptopFocus();
 
 function toggleClosetLight() {
@@ -766,37 +807,37 @@ function standUp() {
   if (pose === 'sit') {
     pose = 'stand';
     camera.position.set(chairX, standEyeY, -1.02);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã đứng dậy khỏi ghế.');
   } else if (pose === 'sit2') {
     pose = 'stand';
     camera.position.set(chair2X, standEyeY, 3.30);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã đứng dậy khỏi ghế.');
   } else if (pose === 'vanity') {
     pose = 'stand';
     camera.position.set(vanityX, standEyeY, -0.05);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã đứng dậy khỏi bàn trang điểm.');
   } else if (pose === 'bed') {
     pose = 'stand';
     camera.position.set(0.35, standEyeY, 0.62);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã bước xuống khỏi giường.');
   } else if (pose === 'bed2') {
     pose = 'stand';
     camera.position.set(15.20, standEyeY, 0.35);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã bước xuống khỏi giường.');
   } else if (pose === 'under_bed_1') {
     pose = 'stand';
     camera.position.set(0.10, standEyeY, 0.62);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã chui ra khỏi gầm giường.');
   } else if (pose === 'under_bed_2') {
     pose = 'stand';
     camera.position.set(15.20, standEyeY, 0.35);
-    playerY = standEyeY; velY = 0; isGrounded = true;
+    velY = 0; isGrounded = true;
     say('Bạn đã chui ra khỏi gầm giường.');
   }
 }
@@ -1070,11 +1111,20 @@ const groundFloor = createGroundFloor({ T, scene, camera, targets, say, cyl, bal
 const basement = createBasement(T, scene);
 let inBasement = false;
 const hatchCenter=new T.Vector3(cellar.left,cellar.upper,cellar.firstStep);
-targets.push({name:'Mở nắp xuống tầng hầm', pos:new T.Vector3(cellar.left+.18,cellar.upper+.1,cellar.firstStep),
-  available:()=>!basement.opened && !(camera.position.x>=cellar.left && camera.position.x<=cellar.right &&
-    camera.position.z>cellar.firstStep && camera.position.z<cellar.coverEnd),
-  use(){ basement.open(); say('Nắp hầm đã mở. Bước xuống cầu thang để vào hầm.'); }
-});
+const hatchTarget = {
+  name:'Nắp tầng hầm', pos:new T.Vector3(),
+  available(){
+    if(basement.overHatch(camera.position.x,camera.position.z)) return false;
+    basement.handlePosition(this.pos);
+    return true;
+  },
+  use(){
+    if(!this.available()) return;
+    basement.toggle();
+    say(basement.opened ? 'Nắp hầm đã mở.' : 'Nắp hầm đã đóng.');
+  }
+};
+targets.push(hatchTarget);
 function walkingFloor(x,z) {
   return inBasement ? basement.floor(x,z) : lowerFloorHeight(x,z) ?? 0;
 }
@@ -1082,6 +1132,7 @@ function walkingFloor(x,z) {
 const hint=document.querySelector('#hint');
 
 function normalizeKey(e){
+  if(e.code==='ShiftLeft' || e.code==='ShiftRight') return e.code;
   if(['KeyW','KeyA','KeyS','KeyD','KeyE','KeyF','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Digit1','Digit2','Digit3','Space'].includes(e.code)) return e.code;
   const k=(e.key||'').toLowerCase();
   if(k==='w'||k==='ư') return 'KeyW';
@@ -1095,7 +1146,7 @@ function normalizeKey(e){
 
 renderer.domElement.addEventListener('mousedown',event=>{
   if(started){
-    if(event.button===0 && current && ['Laptop','Laptop gaming','Mở nắp xuống tầng hầm'].includes(current.name)){
+    if(event.button===0 && current && (current===hatchTarget || ['Laptop','Laptop gaming'].includes(current.name))){
       current.use(); return;
     }
     dragging=true;
@@ -1124,7 +1175,7 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(laptopFocus){
-    if(/^Digit[1-4]$/.test(code)) showApp(Number(code.slice(-1))-1);
+    if(/^Digit[1-5]$/.test(code)) showApp(Number(code.slice(-1))-1);
     else if(['Space','Escape','KeyE'].includes(code)){
       e.preventDefault();
       exitLaptopFocus(code==='KeyE');
@@ -1175,8 +1226,6 @@ window.addEventListener('blur',()=>{keys={};dragging=false;});
 function blocked(x,z){
   if(inBasement) return basement.blocks(x,z,camera.position.x);
   if(basement.blocksFromAbove(x,z)) return true;
-  if(basement.opened && basement.belowLanding(x,z) && z<cellar.coverEnd &&
-      (camera.position.z>cellar.firstStep || !basement.inLane(camera.position.x))) return true;
   if(lowerFloorHeight(x,z) !== null) return groundFloor.blocksFurniture(x,z);
   if(x < -4.15 || x > 19.20) return true;
   if(x <= 4.15 && (z < -3.15 || z > 3.15)) return true;
@@ -1212,44 +1261,55 @@ function animate(){
   const frameSeconds = clock.getDelta();
   const dt = Math.min(frameSeconds, .066);
   if (renderBudget.sample(frameSeconds, started && !document.hidden)) applyRenderScale();
-  if(started){
+  if(laptopFocus && screenView!=='Camera') return;
+  if(started && !laptopFocus){
+    const wasInBasement = inBasement;
     const previousFloor = walkingFloor(camera.position.x,camera.position.z);
     let f=((keys.KeyW||keys.ArrowUp)?1:0)-((keys.KeyS||keys.ArrowDown)?1:0),
         s=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0);
     if(!laptopFocus && !bathroom.isMirrorFocus() && pose === 'stand' && (f||s)){
       let l=Math.hypot(f,s);f/=l;s/=l;
       const steps = dt > .04 ? 2 : 1;
-      const distance = 2.65 * dt / steps;
+      const walkSpeed = 2.65;
+      const sprintMultiplier = keys.ShiftLeft || keys.ShiftRight ? 1.3 : 1;
+      const distance = walkSpeed * sprintMultiplier * dt / steps;
       const dx = (-Math.sin(yaw)*f+Math.cos(yaw)*s)*distance;
       const dz = (-Math.cos(yaw)*f-Math.sin(yaw)*s)*distance;
       for (let step = 0; step < steps; step++) {
         if(!blocked(camera.position.x+dx,camera.position.z)) camera.position.x+=dx;
         if(!blocked(camera.position.x,camera.position.z+dz)) camera.position.z+=dz;
-        if(basement.opened && basement.inLane(camera.position.x)){
-          if(!inBasement && camera.position.z>cellar.firstStep && camera.position.z<cellar.coverEnd) inBasement=true;
-          if(inBasement && camera.position.z<=cellar.firstStep){
-            inBasement=false;
-            basement.flashlight.visible=false;
-          }
+        if(!inBasement && basement.canDescend(camera.position.x,camera.position.z)){
+          inBasement=true;
+        } else if(inBasement && basement.inLane(camera.position.x) && camera.position.z<=cellar.firstStep){
+          inBasement=false;
+          basement.flashlight.visible=false;
         }
       }
     }
 
-    if(laptopFocus) return;
     if(!bathroom.isMirrorFocus() && pose === 'stand'){
-      if(!isGrounded || playerY > standEyeY){
-        playerY += velY * dt;
-        velY -= 11.5 * dt;
-        const eyeLimit = inBasement && camera.position.z>cellar.coverEnd ? Math.min(2.92, cellar.upper-.32-walkingFloor(camera.position.x,camera.position.z)) : 2.92;
-        if(playerY >= eyeLimit){ playerY = eyeLimit; velY = Math.min(0, velY); }
-        if(playerY <= standEyeY){
-          playerY = standEyeY;
-          velY = 0;
-          isGrounded = true;
+      const floor = walkingFloor(camera.position.x,camera.position.z);
+      const standingHeight = floor + standEyeY;
+      // Keep contact on ordinary steps, but fall from the exposed side of the stairs.
+      if(!wasInBasement && inBasement && previousFloor-floor>.2) isGrounded=false;
+      if(isGrounded){
+        camera.position.y = floor + T.MathUtils.damp(camera.position.y-previousFloor, standEyeY, 18, dt);
+      } else {
+        const gravity = 11.5;
+        camera.position.y += velY*dt - .5*gravity*dt*dt;
+        velY -= gravity*dt;
+        const ceiling = inBasement && camera.position.z>cellar.coverEnd
+          ? Math.min(floor+2.92,cellar.upper-.32) : floor+2.92;
+        if(velY>0 && camera.position.y>=ceiling){
+          camera.position.y=ceiling;
+          velY=0;
+        }
+        if(camera.position.y<=standingHeight){
+          camera.position.y=standingHeight;
+          velY=0;
+          isGrounded=true;
         }
       }
-      const floor = walkingFloor(camera.position.x,camera.position.z);
-      camera.position.y = floor + T.MathUtils.damp(camera.position.y - previousFloor, playerY, 18, dt);
       const level = inBasement ? 'Tầng hầm' : isOutside(camera.position.z) ? 'Sân trước' : floor === 0 ? 'Tầng hai' : 'Tầng một';
       if (floorLabel.textContent !== level) floorLabel.textContent = level;
     } else if(pose === 'sit' || pose === 'sit2' || pose === 'vanity'){
@@ -1306,6 +1366,7 @@ function animate(){
       else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E / F ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
       else if(current.name==='Cửa tủ quần áo') hint.textContent = '[ E ]  ' + (wardrobeTarget>.5 ? 'Đóng cửa tủ' : 'Mở cửa tủ');
       else if(current.name==='Laptop' || current.name==='Laptop gaming') hint.textContent='[ Chuột trái / E ]  Mở laptop';
+      else if(current===hatchTarget) hint.textContent='[ Chuột trái / E ]  '+(basement.opened ? 'Đóng nắp hầm' : 'Mở nắp hầm');
       else if(current.name==='Gương soi') hint.textContent = '[ E ]  Soi gương';
       else hint.textContent='[ E ]  Tương tác · '+current.name;
     } else if(pose === 'sit' || pose === 'sit2'){
@@ -1357,6 +1418,17 @@ function animate(){
   }
 
   basement.update(dt);
+  if(laptopFocus){
+    const now=performance.now();
+    const lens=securityCameras[selectedChannel];
+    groundFloor.update(dt,lens.position);
+    if(now>=nextFeedFrame){
+      renderer.render(scene,lens);
+      feedContext.drawImage(renderer.domElement,0,0,feed.width,feed.height);
+      nextFeedFrame=now+1000/12;
+    }
+    return;
+  }
   if(!inBasement) bathroom.update(dt, started, yaw, pitch);
   groundFloor.update(dt);
   renderer.render(scene,camera);
