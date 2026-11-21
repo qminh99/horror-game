@@ -52,6 +52,7 @@ button:disabled{opacity:.48;cursor:wait}
 </section>
 <script type="module">
 import { paintWallpaper, paintIcon } from './laptop-display.js';
+import { createPlayerHands } from './player-hands.js';
 import { createMinimap } from './minimap.js';
 import { cellar } from './cellar-layout.js';
 let started = false, locked = false, dragging = false, dialogueOpen = false;
@@ -110,6 +111,7 @@ const scene=new T.Scene();scene.background=new T.Color(0x070c0d);scene.fog=new T
 const camera=new T.PerspectiveCamera(74,innerWidth/innerHeight,.06,80);
 camera.position.set(0,1.63,1.25);
 
+const playerHands = createPlayerHands(T);
 const renderer=new T.WebGLRenderer({antialias:true});
 const renderBudget = createRenderBudget();
 function applyRenderScale() {
@@ -1211,10 +1213,17 @@ function normalizeKey(e){
   return e.code;
 }
 
+function useCurrentTarget(){
+  playerHands.reach(current.pos, camera);
+  if(current.name === 'Gương soi') bathroom.syncAnglesFrom(yaw, pitch);
+  const res = current.use();
+  if(res && res.setAngles){ yaw = res.setAngles.yaw; pitch = res.setAngles.pitch; }
+}
+
 renderer.domElement.addEventListener('mousedown',event=>{
   if(started){
     if(event.button===0 && current && (current===hatchTarget || ['Laptop','Laptop gaming'].includes(current.name))){
-      current.use(); return;
+      useCurrentTarget(); return;
     }
     dragging=true;
     if(!locked) safePointerLock(renderer.domElement);
@@ -1277,6 +1286,7 @@ window.addEventListener('keydown',e=>{
   }
   if(code==='KeyF' && started && isInsideWardrobe()){
     e.preventDefault();
+    playerHands.reach(null, camera);
     toggleClosetLight();
     return;
   }
@@ -1287,9 +1297,7 @@ window.addEventListener('keydown',e=>{
     } else if(pose === 'under_bed_1' || pose === 'under_bed_2'){
       standUp();
     } else if(current) {
-      if(current.name === 'Gương soi') bathroom.syncAnglesFrom(yaw, pitch);
-      const res = current.use();
-      if(res && res.setAngles){ yaw = res.setAngles.yaw; pitch = res.setAngles.pitch; }
+      useCurrentTarget();
     }
     else if(pose !== 'stand') standUp();
   }
@@ -1338,6 +1346,7 @@ function animate(){
   const dt = Math.min(frameSeconds, .066);
   dormCharacters.update(dt);
   if (renderBudget.sample(frameSeconds, started && !document.hidden)) applyRenderScale();
+  const startX = camera.position.x, startZ = camera.position.z;
   if(laptopFocus && screenView!=='Camera') return;
   if(started && !laptopFocus){
     const wasInBasement = inBasement;
@@ -1520,6 +1529,13 @@ function animate(){
     renderer.autoClear=false;
     renderer.render(basement.scene,camera);
     renderer.autoClear=true;
+  }
+  if(started && !bathroom.isMirrorFocus() && !dialogueOpen){
+    const distance = isGrounded && pose === 'stand'
+      ? Math.hypot(camera.position.x - startX, camera.position.z - startZ) : 0;
+    const brightness = inBasement ? (basement.flashlight.visible ? 0.48 : 0.08) : (lightOn ? 1 : 0.32);
+    playerHands.update(dt, distance, camera.aspect, dormCharacters.isJacketWorn(), brightness);
+    playerHands.render(renderer);
   }
 }
 
