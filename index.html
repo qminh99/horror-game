@@ -87,7 +87,7 @@ async function init() {
 const [
   { createBathroom },
   { createBasement },
-  { createGroundFloor, isOutside, lowerFloorHeight, stairOpening },
+  { createGroundFloor, isOutside, lowerFloorHeight, stairOpening, house },
   { createRenderBudget, renderPixelRatio },
   T
 ] = await Promise.all([
@@ -1315,7 +1315,7 @@ function animate(){
           isGrounded=true;
         }
       }
-      const level = inBasement ? 'Tầng hầm' : isOutside(camera.position.z) ? 'Sân trước' : floor === 0 ? 'Tầng hai' : 'Tầng một';
+      const level = inBasement ? 'Tầng hầm' : isOutside(camera.position.z,camera.position.x) ? (camera.position.z<house.front ? 'Lối sau nhà' : 'Sân trước') : floor === 0 ? 'Tầng hai' : 'Tầng một';
       if (floorLabel.textContent !== level) floorLabel.textContent = level;
     } else if(pose === 'sit' || pose === 'sit2' || pose === 'vanity'){
       camera.position.y = T.MathUtils.damp(camera.position.y, 1.24, 10, dt);

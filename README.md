@@ -28,3 +28,5 @@ Nắp hầm nằm cạnh chân cầu thang tầng một. Nhìn vào nắp rồi 
 Đi thẳng từ chân cầu thang theo biển **RA SÂN**. Nhấn **E** để mở hoặc đóng cửa chính từ cả hai phía.
 
 Bản thử dựng bằng hình học Three.js từ ảnh căn phòng. Kích thước và phần khuất được ước lượng.
+
+Nhấn **E** ở thùng rác cạnh tủ lạnh để lấy túi. Đi vòng theo hông trái nhà (nhìn từ sân), đến thùng lớn sau bếp rồi nhấn **E** để đổ rác.

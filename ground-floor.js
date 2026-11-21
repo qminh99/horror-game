@@ -10,12 +10,14 @@ const kitchenDoorway = { start: 10.57, end: 11.94 };
 const livingDoorway = { start: 11.02, end: 12.49 };
 const radius = .22;
 const entrance = { left: 7.58, right: 9.02, height: 2.36 };
-const yard = { left: -.45, right: 18.25, end: 25.8 };
+const yard = { left: -5.8, right: 21.8, end: 31.6, rear: 4.35, roadZ: 28.55, binX: 1.4, binZ: 5.25 };
 
 export { house, yard, entrance, kitchenDoorway, livingDoorway };
 
-export function isOutside(z) {
-  return z > house.front + radius;
+export function isOutside(z,x) {
+  if(z > house.front + radius) return true;
+  return z>=yard.rear && x>=yard.left && (x<house.west-radius ||
+    (z<house.back-radius && x<house.west+3));
 }
 
 export function lowerFloorHeight(x, z) {
@@ -25,10 +27,10 @@ export function lowerFloorHeight(x, z) {
     return stair.floor * Math.max(0, Math.min(1, slope));
   }
 
-  if (z > house.front - radius) {
-    if (isOutside(z)) {
+  if (isOutside(z,x)) {
       return x >= yard.left + radius && x <= yard.right - radius && z <= yard.end - radius ? stair.floor : null;
-    }
+  }
+  if (z > house.front - radius) {
     const clearance = radius + .03;
     return x >= entrance.left + clearance && x <= entrance.right - clearance ? stair.floor : null;
   }
@@ -374,6 +376,34 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
     available: () => camera.position.x < kitchenEdge,
     use() { say('Lớp men trên cửa tủ đã bong ở các góc.'); } });
 
+  const binX=2, binZ=8.04;
+  cylinder(iron,binX,.30,binZ,.235,.19,.59);
+  cylinder(darkWood,binX,.595,binZ,.238,.238,.025);
+  boxAt(iron,binX,.065,binZ+.20,.15,.04,.11);
+  const bagMaterial=plaster(0x20251f);
+  const kitchenBag=sphere(bagMaterial,binX,.61,binZ,.225);
+  kitchenBag.scale.y=.52;
+  const knot=sphere(bagMaterial,binX,.74,binZ,.06);
+  solid(binX,binZ,.47,.47);
+  let bagState='kitchen';
+  targets.push({name:'Lấy túi rác',pos:new T.Vector3(binX,stair.floor+.64,binZ),
+    available:()=>bagState==='kitchen' && !isOutside(camera.position.z,camera.position.x),
+    use(){
+      if(bagState!=='kitchen') return;
+      bagState='carrying';
+      kitchenBag.visible=knot.visible=false;
+      say('Đã cầm túi rác. Mang ra thùng sau nhà, bên trái nhìn từ sân.');
+    }
+  },{name:'Đổ túi rác',pos:new T.Vector3(yard.binX,stair.floor+.9,yard.binZ),
+    available:()=>bagState==='carrying' && isOutside(camera.position.z,camera.position.x),
+    use(){
+      if(bagState!=='carrying') return;
+      bagState='disposed';
+      outdoors.discardBag();
+      say('Đã đổ rác.');
+    }
+  });
+
   const counterX = 3.66, counterZ = 7.94;
   const topMat = plaster(0x625247, { roughness: .58 });
   boxAt(enamel, counterX, .46, counterZ, 2.65, .90, .73);
@@ -677,14 +707,14 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
 
   function blocksFurniture(x, z) {
     if (blocksFrontDoor(x, z)) return true;
-    if (isOutside(z)) return outdoors.blocked(x, z);
+    if (isOutside(z,x)) return outdoors.blocked(x, z);
     return furniture.some(item =>
       Math.abs(x - item.x) < item.width / 2 + radius && Math.abs(z - item.z) < item.depth / 2 + radius
     );
   }
 
   function update(dt = 0, viewPosition = camera.position) {
-    rooms.visible = viewPosition.z > 6.25;
+    rooms.visible = viewPosition.z > 6.25 || isOutside(viewPosition.z,viewPosition.x);
     const now = performance.now();
     outdoors.update(viewPosition, now);
     if (!rooms.visible) return;

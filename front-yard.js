@@ -8,7 +8,6 @@ export function createFrontYard({
   const { front } = house;
   const muted = (color, emissive = color) => plaster(color, { emissive, emissiveIntensity: .26 });
   const ground = muted(0x35414a, 0x172833);
-  const fence = muted(0x414650, 0x263447);
   const metal = muted(0x202c37);
   const bark = muted(0x2c2a2b, 0x202832);
   const glass = muted(0x4c5750, 0x455c56);
@@ -44,13 +43,15 @@ export function createFrontYard({
   }
 
   // The road follows the ridge. Beyond its far shoulder the terrain drops away.
-  const roadZ = yard.end + 2.75;
+  const roadZ = yard.roadZ;
   const asphalt = muted(0x292e36,0x28303b);
-  box(asphalt,center,-.04,roadZ,128,.12,4.4);
+  box(asphalt,center,-.04,roadZ,152,.12,4.4);
+  const verge=muted(0x72716a,0x494941);
+  for(const side of [-1,1]) box(verge,center,.023,roadZ+side*2.05,152,.008,.055);
   for (let x=-53; x<70; x+=6) box(stone,x,.026,roadZ,2.1,.012,.075);
   const rock = muted(0x293039,0x1a2833);
   box(rock,center,-5.15,front+22.9,128,.6,13).rotation.x=.88;
-  for (const [x,z,w] of [[-16,22,5.6],[33,18,6.4],[-43,24,4.8],[57,23,5.3]]) {
+  for (const [x,z,w] of [[-16,22,5.6],[33,18,6.4],[-43,24,4.8],[57,23,5.3],[-30,17,5.1],[45,21,4.6]]) {
     box(fascia,x,1.32,z,w,2.64,4.1);
     for (const side of [-1,1]) {
       box(eaves,x,2.99,z+side*1.14,w+.68,.17,2.49).rotation.x=side*.32;
@@ -98,22 +99,30 @@ export function createFrontYard({
   box(amber, lampX, 2.15, front + .295, .127, .165, .089);
   const porchLight = light(0xffc475, 12, 5.4, lampX, 2.10, front + .61, group);
 
-  for (const x of [yard.left, yard.right]) {
-    box(fence, x, .40, (front + yard.end) / 2, .18, .80, yard.end - front);
-    for (const y of [.91, 1.55]) box(metal, x, y, (front + yard.end) / 2, .06, .06, yard.end - front);
-    for (let z = front + .32; z < yard.end; z += .63) box(metal, x, 1.20, z, .067, 1, .067);
-  }
-  for (const [x1, x2] of [[yard.left, center - 1.04], [center + 1.04, yard.right]]) {
-    box(fence, (x1 + x2) / 2, .40, yard.end, x2 - x1, .80, .20);
-    for (const y of [.91, 1.55]) box(metal, (x1 + x2) / 2, y, yard.end, x2 - x1, .06, .068);
-    for (let x = x1 + .15; x < x2; x += .60) box(metal, x, 1.19, yard.end, .064, .98, .075);
-  }
-  for (const x of [center - 1.04, center + 1.04]) {
-    box(fence, x, .94, yard.end, .29, 1.88, .32);
-    box(porch, x, 1.89, yard.end, .39, .11, .40);
-  }
-  for (const y of [.14, 1.00, 1.57]) box(metal, center, y, yard.end, 2.04, .086, .078);
-  for (let i = -4; i <= 4; i++) box(metal, center + i * .225, .93, yard.end, .047, 1.78, .074);
+  const streetX=center-2.65, streetZ=roadZ-2.55;
+  box(metal,streetX,2.68,streetZ,.13,5.36,.13);
+  box(metal,streetX,.21,streetZ,.30,.42,.30);
+  box(metal,streetX,5.33,streetZ+.62,.095,.10,1.29);
+  box(eaves,streetX,5.26,streetZ+1.25,.39,.19,.77);
+  box(amber,streetX,5.15,streetZ+1.25,.32,.045,.61);
+  light(0xffce8f,78,16,streetX,5.04,streetZ+1.25,group);
+
+  // Paved service path wraps around the west wall to the bin behind the kitchen.
+  box(terrain,(yard.left+house.west)/2,-.08,(yard.rear+front)/2,
+    house.west-yard.left,.15,front-yard.rear);
+  box(terrain,house.west+1.5,-.08,(yard.rear+house.back)/2,3,.15,house.back-yard.rear);
+  const {binX,binZ}=yard;
+  box(stone,binX,.005,binZ,2.8,.065,1.65);
+  const paintedSteel=muted(0x47534a);
+  box(paintedSteel,binX,.49,binZ,1.52,.86,.85);
+  box(metal,binX,.93,binZ,1.58,.055,.91);
+  for(const side of [-1,1]) box(paintedSteel,binX+side*.76,.99,binZ,.06,.13,.92);
+  box(paintedSteel,binX,.99,binZ-.43,1.55,.13,.06);
+  const discardedBag=new T.Mesh(new T.IcosahedronGeometry(.30,1),metal);
+  discardedBag.position.set(binX+.12,1.04,binZ);
+  discardedBag.scale.set(1.1,.8,.9);
+  discardedBag.visible=false;
+  group.add(discardedBag);
 
   const trees = [[2.73, 18.75, .91], [14.42, 20.45, 1.16], [17.15, 14.48, .58]];
   const branchGeometry = new T.CylinderGeometry(.33, 1, 1, 5);
@@ -188,11 +197,14 @@ export function createFrontYard({
 
   return {
     group,
+    discardBag(){ discardedBag.visible=true; },
     blocked(x, z) {
+      if(Math.abs(x-binX)<.8+radius && Math.abs(z-binZ)<.46+radius) return true;
+      if(Math.hypot(x-streetX,z-streetZ)<.15+radius) return true;
       return trees.some(([treeX, treeZ, size]) => Math.hypot(x - treeX, z - treeZ) < radius + .24 * size);
     },
     update(position, now) {
-      group.visible = position.z > front + radius ||
+      group.visible = position.z > front + radius || (position.y<0 && position.z>=yard.rear && (position.x<house.west || position.z<house.back && position.x<house.west+3)) ||
         (position.z > front - 2.3 && Math.abs(position.x - center) < 1.96);
       if (!group.visible) return;
       porchLight.intensity = 12 + Math.sin(now * .004) * .7;

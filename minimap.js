@@ -55,7 +55,11 @@ export function createMinimap(canvas) {
       for(const [x,w] of [[0,2],[4,4],[10,3]]) area(west+x,north+7.5,w,.15);
       stairs(cellar.left,cellar.right,cellar.firstStep,cellar.foot);
     }else{
-      area(yard.left,house.front,yard.right-yard.left,yard.end-house.front,'#24372f');
+      area(yard.left,house.front,yard.right-yard.left,yard.end-house.front,'#24372f',false);
+      area(yard.left,yard.rear,house.west-yard.left,house.front-yard.rear,'#24372f',false);
+      area(house.west,yard.rear,3,house.back-yard.rear,'#24372f',false);
+      area(yard.left,yard.roadZ-2.2,yard.right-yard.left,4.4,'#43484a',false);
+      area(yard.binX-.76,yard.binZ-.43,1.52,.86,'#576954');
       for(const [left,right,back] of [[house.west,house.kitchenWall,house.back],
         [house.kitchenWall,house.livingWall,9.56],[house.livingWall,house.east,house.back]]){
         area(left,back,right-left,house.front-back);
