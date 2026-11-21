@@ -376,6 +376,7 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   }
 
   return {
+    get doorOpen(){ return Math.abs(bathDoorAngle)>.5; },
     isBlocked,
     blocksDoor,
     update,

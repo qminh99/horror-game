@@ -12,6 +12,8 @@ const radius = .22;
 const entrance = { left: 7.58, right: 9.02, height: 2.36 };
 const yard = { left: -.45, right: 18.25, end: 25.8 };
 
+export { house, yard, entrance, kitchenDoorway, livingDoorway };
+
 export function isOutside(z) {
   return z > house.front + radius;
 }
@@ -694,5 +696,5 @@ export function createGroundFloor({ T, scene, camera, targets, say, cyl, ball })
   }
 
   update();
-  return { blocksFurniture, update };
+  return { blocksFurniture, update, get doorOpen(){ return Math.abs(frontDoorAngle)>.5; } };
 }
