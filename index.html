@@ -33,9 +33,15 @@ button:disabled{opacity:.48;cursor:wait}
 #ui .panel{top:12px;left:12px;min-width:0;width:clamp(140px,16vw,205px);padding:6px 8px}
 #ui .panel .title{font:600 13px/1.3 monospace;margin:2px 0 5px}
 #minimap{width:100%;height:auto;background:#101a18}
+#dialogue:not([hidden]){position:fixed;inset:auto 0 5%;z-index:8;display:grid;place-items:center;pointer-events:auto}
+#dialogue-card{width:min(620px,calc(100vw - 28px));padding:18px 20px;background:#091112f2;border:1px solid #c7d8ca66;box-shadow:0 10px 40px #000b}
+#dialogue-card p{margin:0 0 14px;color:#e8e5dc;font:16px/1.55 Georgia,serif}
+#dialogue-actions{display:flex;flex-wrap:wrap;gap:8px}
+#dialogue-actions button{max-width:100%;text-align:left;line-height:1.4}
 </style></head><body>
 <div id="overlay"><div id="card"><img src="./assets/game-icon.png" alt="" width="64" height="64" style="float:right;margin:0 0 8px 12px"><div class="eyebrow">KINH DỊ · BẢN THỬ</div><h1>Căn phòng lúc chạng vạng</h1><p><b>W A S D</b> di chuyển · <b>Space</b> nhảy / đứng dậy · <b>Chuột</b> nhìn quanh · <b>E</b> tương tác · <b>Esc</b> thả chuột</p><button id="start" type="button" disabled>VÀO PHÒNG</button><p class="small" id="statusText" role="status">Đang tải game. Hãy mở qua trình chạy và kết nối Internet để tải Three.js.</p></div></div>
 <div id="ui"><div class="panel"><div class="title" id="floorLabel">Tầng hai</div><canvas id="minimap" width="320" height="210" aria-label="Bản đồ vị trí người chơi"></canvas></div><div id="cross"></div><div id="hint"></div><div id="caption" role="status"></div><div class="shade"></div></div>
+<section id="dialogue" hidden aria-live="polite"><div id="dialogue-card"><p id="dialogue-line"></p><div id="dialogue-actions"><button id="dialogue-choice" type="button"></button><button id="dialogue-ask" type="button" hidden></button><button id="dialogue-skip" type="button" hidden></button></div></div></section>
 
 <section id="desktop" hidden aria-label="Laptop">
   <canvas id="wallpaper" width="352" height="198" aria-hidden="true"></canvas>
@@ -48,7 +54,7 @@ button:disabled{opacity:.48;cursor:wait}
 import { paintWallpaper, paintIcon } from './laptop-display.js';
 import { createMinimap } from './minimap.js';
 import { cellar } from './cellar-layout.js';
-let started = false, locked = false, dragging = false;
+let started = false, locked = false, dragging = false, dialogueOpen = false;
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('start');
 const statusText = document.getElementById('statusText');
@@ -88,12 +94,14 @@ const [
   { createBathroom },
   { createBasement },
   { createGroundFloor, isOutside, lowerFloorHeight, stairOpening, house },
+  { createDormCharacters },
   { createRenderBudget, renderPixelRatio },
   T
 ] = await Promise.all([
   import('./bathroom.js'),
   import('./basement.js'),
   import('./ground-floor.js'),
+  import('./characters.js'),
   import('./render-budget.js'),
   loadThree()
 ]);
@@ -798,6 +806,54 @@ function say(t){
   say.t=setTimeout(()=>e.style.display='none',3600);
 }
 
+const dialogue=document.querySelector('#dialogue');
+const dialogueLine=document.querySelector('#dialogue-line');
+const dialogueChoice=document.querySelector('#dialogue-choice');
+const dialogueAsk=document.querySelector('#dialogue-ask');
+const dialogueSkip=document.querySelector('#dialogue-skip');
+function beginFriendDialogue(){
+  dialogueLine.textContent='Huy quay khỏi màn hình máy tính và nhìn về phía Minh: “A! Cậu là Minh mới chuyển lên đúng không?”';
+  dialogueChoice.textContent='Ừ tớ vừa mới lên đây, phòng tớ ở bên kia đúng không?';
+  dialogueChoice.hidden=false;
+  dialogueAsk.hidden=true;
+  dialogueSkip.hidden=true;
+  dialogueChoice.onclick=()=>{
+    dialogueLine.textContent='Minh: “Ừ tớ vừa mới lên đây, phòng tớ ở bên kia đúng không?”\n\nHuy: “Đúng rồi! Cứ tự nhiên nhé!”';
+    dialogueChoice.hidden=true;
+    dialogueAsk.textContent='Hỏi: Sao phòng cậu nhìn xịn thế, trông phòng tớ chán cực!';
+    dialogueSkip.textContent='Không hỏi gì';
+    dialogueAsk.hidden=false;
+    dialogueSkip.hidden=false;
+    dialogueAsk.onclick=()=>{
+      dialogueLine.textContent='Minh: “Sao phòng cậu nhìn xịn thế, trông phòng tớ chán cực!”\n\nHuy: “Hmm, thì tớ đến trước nên lấy phòng này thôi, cậu đến chậm thì phải chịu!”';
+      showDialogueClose();
+    };
+    dialogueSkip.onclick=()=>{
+      dialogueLine.textContent='Minh không hỏi thêm. Huy gật đầu rồi quay lại bàn máy tính.';
+      showDialogueClose();
+    };
+    dialogueAsk.focus();
+  };
+  dialogue.hidden=false;
+  dialogueOpen=true;
+  keys={};
+  if(document.pointerLockElement) document.exitPointerLock();
+  dialogueChoice.focus();
+}
+function showDialogueClose(){
+  dialogueAsk.hidden=true;
+  dialogueSkip.hidden=true;
+  dialogueChoice.textContent='Đóng';
+  dialogueChoice.hidden=false;
+  dialogueChoice.onclick=closeFriendDialogue;
+  dialogueChoice.focus();
+}
+function closeFriendDialogue(){
+  dialogue.hidden=true;
+  dialogueOpen=false;
+  dormCharacters.returnToDesk();
+}
+
 let yaw=0,pitch=0,keys={},current=null;
 
 const drawMinimap=createMinimap(document.querySelector('#minimap'));
@@ -1084,11 +1140,6 @@ const targets=[
     name:'Laptop gaming',
     pos:new T.Vector3(desk2X,1.37,desk2Z+.18),
     use(){ enterLaptopFocus('gaming'); }
-  },
-  {
-    name:'Ghế bàn học phòng ngủ',
-    pos:new T.Vector3(chair2X,.78,chair2Z),
-    use(){ toggleSit2(); }
   }
 ];
 
@@ -1109,8 +1160,19 @@ const blockers=[
   [chair2X,chair2Z,.64,.72]
 ];
 
+let mirrorJacketUpdate = () => {};
+const dormCharacters = createDormCharacters(T, scene, {
+  say,
+  onFriendInteract: beginFriendDialogue,
+  onJacketChange: visible => mirrorJacketUpdate(visible),
+  deskPosition: { x: desk2X, z: desk2Z }
+});
+targets.push(...dormCharacters.targets);
+
 // Khởi tạo khu nhà vệ sinh từ file bathroom.js
 const bathroom = createBathroom({ T, scene, renderer, camera, targets, blockers, say, standEyeY });
+bathroom.setVnuJacketVisible(dormCharacters.isJacketWorn());
+mirrorJacketUpdate = visible => bathroom.setVnuJacketVisible(visible);
 const groundFloor = createGroundFloor({ T, scene, camera, targets, say, cyl, ball });
 
 const basement = createBasement(T, scene);
@@ -1175,6 +1237,15 @@ document.addEventListener('mousemove',e=>{
 window.addEventListener('keydown',e=>{
   if (!started) return;
   const code=normalizeKey(e);
+  if(dialogueOpen){
+    if(code==='Escape') closeFriendDialogue();
+    else if(code==='Enter' || code==='Space'){
+      const active=document.activeElement;
+      if(active instanceof HTMLButtonElement && dialogue.contains(active)) active.click();
+    }
+    e.preventDefault();
+    return;
+  }
   if (e.repeat && ['KeyT','KeyE','KeyF','Space','Digit1','Digit2','Digit3'].includes(code)) {
     e.preventDefault();
     return;
@@ -1265,6 +1336,7 @@ function animate(){
   requestAnimationFrame(animate);
   const frameSeconds = clock.getDelta();
   const dt = Math.min(frameSeconds, .066);
+  dormCharacters.update(dt);
   if (renderBudget.sample(frameSeconds, started && !document.hidden)) applyRenderScale();
   if(laptopFocus && screenView!=='Camera') return;
   if(started && !laptopFocus){
@@ -1371,6 +1443,8 @@ function animate(){
       else if(current.name==='Công tắc đèn trong tủ') hint.textContent = '[ E / F ]  ' + (closetLightOn ? 'Tắt đèn trong tủ' : 'Bật đèn trong tủ');
       else if(current.name==='Cửa tủ quần áo') hint.textContent = '[ E ]  ' + (wardrobeTarget>.5 ? 'Đóng cửa tủ' : 'Mở cửa tủ');
       else if(current.name==='Laptop' || current.name==='Laptop gaming') hint.textContent='[ Chuột trái / E ]  Mở laptop';
+      else if(current.name==='Huy, bạn cùng khóa') hint.textContent='[ E ]  Trò chuyện với Huy';
+      else if(current.name==='Móc áo khoác VNU') hint.textContent='[ E ]  '+(dormCharacters.isJacketWorn() ? 'Cởi áo khoác và treo lên móc' : 'Mặc lại áo khoác VNU');
       else if(current===hatchTarget) hint.textContent='[ Chuột trái / E ]  '+(basement.opened ? 'Đóng nắp hầm' : 'Mở nắp hầm');
       else if(current.name==='Gương soi') hint.textContent = '[ E ]  Soi gương';
       else hint.textContent='[ E ]  Tương tác · '+current.name;

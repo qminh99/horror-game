@@ -21,6 +21,8 @@ Trong thư mục dự án, chạy `python3 serve_game.py`. Trình chạy sẽ m�
 ## Khám phá ngôi nhà
 Bạn bắt đầu trong phòng ngủ tầng hai. Nhìn vào cửa và nhấn **E** để ra hành lang, rồi khám phá phòng ngủ đối diện và nhà vệ sinh.
 
+Trong phòng bắt đầu, sang phòng ngủ đối diện. Huy đang ngồi ở bàn máy tính; nhìn vào Huy và nhấn **E** để trò chuyện, sau đó chọn câu trả lời trên màn hình. Nhìn vào móc cạnh cửa phòng bắt đầu và nhấn **E** để cởi hoặc mặc lại áo khoác VNU; áo đang cởi sẽ hiện trên móc với mặt lưng có dòng chữ Đại học Quốc gia Hà Nội.
+
 Từ hành lang tầng hai, đi theo biển **TẦNG 1**. Khi bước xuống hết cầu thang, rẽ phải vào bếp hoặc rẽ trái vào phòng khách. Dùng **E** để bật/tắt đèn bếp hoặc TV. Đi lại lên cầu thang để trở về tầng hai.
 
 Nắp hầm nằm cạnh chân cầu thang tầng một. Nhìn vào nắp rồi nhấn **E** để mở hoặc đóng. Khi nắp mở, bạn có thể bước từ mép hành lang xuống giữa cầu thang hầm. Lối sang phòng khách nằm sau đầu nắp, về phía cửa chính. Nhấn **T** để bật đèn pin.

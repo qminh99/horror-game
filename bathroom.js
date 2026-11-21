@@ -129,9 +129,9 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   bathGroup.add(mirrorPlane);
 
   // Camera ảo đặt sau mặt gương nhìn ra phòng tắm
-  const mirrorCam = new T.PerspectiveCamera(54, 0.78 / 0.88, 0.12, 16);
+  const mirrorCam = new T.PerspectiveCamera(92, 0.78 / 0.88, 0.12, 16);
   mirrorCam.position.set(mirrorX, mirrorY, mirrorZ - 0.02);
-  mirrorCam.lookAt(mirrorX, mirrorY - 0.08, -1.20);
+  mirrorCam.lookAt(mirrorX, 0.90, -1.20);
   mirrorCam.layers.enable(0);
   mirrorCam.layers.enable(1); // Hiển thị cả model nhân vật của người chơi (Layer 1)
 
@@ -148,12 +148,47 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   }
 
   const shirtMat = M(0x283b42, 0.75);
-  const skinMat = M(0xe6bfa0, 0.65);
+  const skinMat = M(0xd9ad8c, 0.72);
   const hairMat = M(0x1b1e24, 0.8);
   const eyeMat = M(0x111518, 0.2);
 
   // Thân áo & vai
   addAvatarPart(new T.BoxGeometry(0.42, 0.54, 0.22), shirtMat, 0, 1.18, 0.02);
+  const vnuJacket = new T.Group();
+  vnuJacket.layers.set(1);
+  playerAvatar.add(vnuJacket);
+  const jacketNavy = M(0x071a3d, 0.58);
+  const jacketBlue = M(0x0752ad, 0.52);
+  const jacketWhite = M(0xf2f2ed, 0.72);
+  const eyeWhite = M(0xf3eee5, 0.35);
+  const irisMat = M(0x543c2b, 0.32);
+  addAvatarPart(new T.BoxGeometry(0.46, 0.56, 0.23), jacketNavy, 0, 1.18, -0.015, vnuJacket);
+  for (const side of [-1, 1]) {
+    addAvatarPart(new T.BoxGeometry(0.055, 0.43, 0.236), jacketWhite, side * 0.202, 1.16, -0.012, vnuJacket);
+    const sleeve = addAvatarPart(new T.BoxGeometry(0.14, 0.48, 0.21), jacketNavy, side * 0.29, 1.18, -0.005, vnuJacket);
+    sleeve.rotation.z = -side * 0.12;
+    for (const [offset, stripeMat] of [[-0.044, jacketWhite], [0, jacketBlue], [0.044, jacketWhite]]) {
+      const stripe = addAvatarPart(new T.BoxGeometry(0.022, 0.45, 0.012), stripeMat, side * 0.29 + offset, 1.18, -0.112, vnuJacket);
+      stripe.rotation.z = -side * 0.12;
+    }
+  }
+  addAvatarPart(new T.BoxGeometry(0.26, 0.065, 0.24), jacketNavy, 0, 1.47, -0.005, vnuJacket);
+  addAvatarPart(new T.BoxGeometry(0.012, 0.52, 0.008), jacketWhite, 0, 1.18, -0.136, vnuJacket);
+  const crestRing = new T.Mesh(new T.TorusGeometry(0.046, 0.004, 6, 24), jacketWhite);
+  crestRing.position.set(-0.105, 1.31, -0.135);
+  crestRing.layers.set(1);
+  vnuJacket.add(crestRing);
+  addAvatarPart(new T.BoxGeometry(0.034, 0.004, 0.005), jacketWhite, -0.105, 1.304, -0.138, vnuJacket);
+  addAvatarPart(new T.BoxGeometry(0.003, 0.026, 0.005), jacketWhite, -0.114, 1.316, -0.138, vnuJacket);
+  addAvatarPart(new T.BoxGeometry(0.003, 0.026, 0.005), jacketWhite, -0.096, 1.316, -0.138, vnuJacket);
+  // Lower body stays inside the mirror camera's portrait frame.
+  const trousersMat = M(0x20242a, 0.9);
+  const shoeMat = M(0xd5d3ca, 0.78);
+  addAvatarPart(new T.BoxGeometry(0.34, 0.18, 0.20), trousersMat, 0, 0.84, 0.015);
+  for (const side of [-1, 1]) {
+    addAvatarPart(new T.BoxGeometry(0.15, 0.70, 0.18), trousersMat, side * 0.095, 0.42, 0.015);
+    addAvatarPart(new T.BoxGeometry(0.17, 0.10, 0.29), shoeMat, side * 0.095, 0.065, -0.035);
+  }
   addAvatarPart(new T.CylinderGeometry(0.065, 0.075, 0.12, 14), skinMat, 0, 1.49, 0.01);
 
   // Cụm đầu xoay theo góc nhìn (pitch)
@@ -162,14 +197,24 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
   avatarHead.layers.set(1);
   playerAvatar.add(avatarHead);
 
-  addAvatarPart(new T.SphereGeometry(0.115, 20, 16), skinMat, 0, 0, 0, avatarHead);
+  const face = addAvatarPart(new T.SphereGeometry(0.115, 12, 10), skinMat, 0, 0, 0, avatarHead);
+  face.scale.set(0.92, 1.18, 0.90);
+  for (const side of [-1, 1]) {
+    addAvatarPart(new T.SphereGeometry(0.026, 8, 6), skinMat, side * 0.108, -0.005, 0, avatarHead);
+  }
+  const nose = addAvatarPart(new T.ConeGeometry(0.022, 0.065, 5), skinMat, 0, -0.025, -0.105, avatarHead);
+  nose.rotation.x = -Math.PI / 2;
+  addAvatarPart(new T.BoxGeometry(0.032, 0.006, 0.006), M(0x805b51, 0.75), 0, -0.063, -0.104, avatarHead);
   // Tóc mái & sau đầu
   const hairCap = addAvatarPart(new T.SphereGeometry(0.122, 20, 16), hairMat, 0, 0.025, 0.018, avatarHead);
   hairCap.scale.set(1.02, 1.05, 1.05);
   addAvatarPart(new T.BoxGeometry(0.18, 0.045, 0.08), hairMat, 0, 0.085, -0.075, avatarHead);
-  // Mắt & lông mày (hướng về -Z để khi đứng trước gương mặt hướng thẳng vào gương)
-  addAvatarPart(new T.SphereGeometry(0.013, 10, 8), eyeMat, -0.038, 0.01, -0.108, avatarHead);
-  addAvatarPart(new T.SphereGeometry(0.013, 10, 8), eyeMat, 0.038, 0.01, -0.108, avatarHead);
+  // Layered sclera, iris and pupil make the reflection read as a face at mirror distance.
+  for (const side of [-1, 1]) {
+    addAvatarPart(new T.SphereGeometry(0.018, 12, 8), eyeWhite, side * 0.038, 0.01, -0.102, avatarHead);
+    addAvatarPart(new T.SphereGeometry(0.010, 10, 8), irisMat, side * 0.038, 0.01, -0.117, avatarHead);
+    addAvatarPart(new T.SphereGeometry(0.0055, 8, 6), eyeMat, side * 0.038, 0.01, -0.125, avatarHead);
+  }
   addAvatarPart(new T.BoxGeometry(0.032, 0.008, 0.01), hairMat, -0.038, 0.032, -0.11, avatarHead);
   addAvatarPart(new T.BoxGeometry(0.032, 0.008, 0.01), hairMat, 0.038, 0.032, -0.11, avatarHead);
 
@@ -385,6 +430,7 @@ export function createBathroom({ T, scene, renderer, camera, targets, blockers, 
     syncAnglesFrom(curYaw, curPitch) {
       savedMirrorReturn.yaw = curYaw;
       savedMirrorReturn.pitch = curPitch;
-    }
+    },
+    setVnuJacketVisible(visible) { vnuJacket.visible = Boolean(visible); }
   };
 }
